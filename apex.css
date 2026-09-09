@@ -1,0 +1,4180 @@
+/* ============================================================================
+   APEX — the static source stylesheet.
+
+   AUTHORED, NOT PORTED. Breakdance's own output is ~69KB of per-element rules
+   keyed on `bde-text-271-10553`-style ids; none of that is design, all of it is
+   an accident of which node got which number. What IS design is the value each
+   of those rules carries, and every value below was read off the SERVED CSS of
+   apex-solo :8098 (post-255.css / post-271.css / presets.css / global-settings)
+   — the declaration, not a computed sample, so a clamp() stays a clamp() rather
+   than freezing at whatever one viewport happened to resolve it to.
+
+   THE RECORD BEHIND IT (designs/apex-source/global-settings.json):
+     14 palette swatches · Outfit (headings) + DM Sans (body) · base 18px,
+     ratio 1.25 · 5 presets. Read in full before a line of this was written.
+
+   ⚠️ THE SERVED BUILD CARRIES A SIXTH PRESET THE SOURCE RECORD DOES NOT.
+   `af1e0001-…-000000000001` "Dual Heading Hero" is created by the emitter at
+   build time (`sections/apex-hero.mjs`, le_fluid(40,66)), so the hero headline
+   is NOT one of the five presets in the record. Reading only the record would
+   have given the hero a clamp(32px,4vw,52px) headline instead of its real
+   clamp(40px,…,66px) — the "read EVERY layer" trap, avoided by reading both.
+
+   HOUSE-STANDARDS.json outranks the reference where they disagree. Two places
+   it does, both marked below: `colour-through-globals` (the reference hardcodes
+   four hex pairs in the trust strip; here they are tokens carrying the SAME
+   values, so the look is identical and the standard is kept) and `fluid-type`
+   (every clamp is the reference's own, none were flattened).
+   ============================================================================ */
+
+:root {
+  /* ── the 14 swatches, by the labels the record gives them ─────────────── */
+  --apx-ink:        #0a0f14;
+  --apx-slate:      #1a2332;
+  --apx-charcoal:   #2a3544;
+  --apx-steel:      #4a5568;
+  --apx-mist:       #94a3b8;
+  --apx-cloud:      #e2e8f0;
+  --apx-snow:       #f8fafc;
+  --apx-white:      #ffffff;
+  --apx-ember:      #e63946;   /* brand */
+  --apx-ember-dark: #c1121f;   /* brand hover */
+  --apx-ember-glow: #ff6b6b;
+  --apx-teal:       #0d9488;
+  --apx-teal-light: #5eead4;
+  --apx-gold:       #f59e0b;
+
+  /* Per-client override point. `brand.primary_color` on the record lands here
+     and nowhere else, so a client recolour is one declaration, not a sweep. */
+  --apx-brand:       var(--apx-ember);
+  --apx-brand-hover: var(--apx-ember-dark);
+
+  /* ── roles (global settings → colors) ─────────────────────────────────── */
+  --apx-text:     var(--apx-mist);
+  --apx-headings: var(--apx-ink);
+  --apx-page:     var(--apx-white);
+
+  /* ── type ─────────────────────────────────────────────────────────────── */
+  --apx-font-head: Outfit, system-ui, -apple-system, sans-serif;
+  --apx-font-body: "DM Sans", system-ui, -apple-system, sans-serif;
+  --apx-base:  18px;
+  --apx-ratio: 1.25;
+  --apx-lh-body: 1.7;
+  --apx-lh-head: 1.15;
+  --apx-ls-head: -0.02em;
+
+  /* The scale, as the record states it: base × ratio, compounding. Kept as
+     calc() rather than resolved so the ratio stays one number to change. */
+  --apx-h6: var(--apx-base);
+  --apx-h5: calc(var(--apx-h6) * var(--apx-ratio));
+  --apx-h4: calc(var(--apx-h5) * var(--apx-ratio));
+  --apx-h3: calc(var(--apx-h4) * var(--apx-ratio));
+  --apx-h2: calc(var(--apx-h3) * var(--apx-ratio));
+  --apx-h1: calc(var(--apx-h2) * var(--apx-ratio));
+
+  /* Fluid sizes. Every one is the served build's own clamp, verbatim — they
+     come from lib/elements.mjs `fluid(min,max)`, which is the single expression
+     the emitters and the checker share. Do not re-derive them by hand. */
+  --apx-t-hero:   clamp(40px, 29.83px + 2.826vw, 66px);
+  --apx-t-lead:   clamp(16px, 14.43px + 0.435vw, 20px);
+  --apx-t-stat:   clamp(24px, 21.65px + 0.652vw, 30px);
+  --apx-t-score:  clamp(21px, 19.04px + 0.543vw, 26px);
+  --apx-t-nav:    clamp(0.875rem, 1.2vw, 0.95rem);
+  --apx-t-btn:    16px;
+  --apx-t-eyebrow: 13px;   /* at/below the 16px fluid floor: stays fixed, per
+                              HOUSE-STANDARDS fluid-type.floor_px. Shrinking a
+                              13px label on a phone is a legibility regression. */
+  --apx-t-micro:  11px;
+  --apx-t-nano:   10px;
+  --apx-t-trust:  15px;
+
+  /* ── frame ────────────────────────────────────────────────────────────── */
+  --apx-maxw:     1200px;
+  --apx-gut:      20px;
+  --apx-band-pad: 100px;
+  --apx-col-gap:  30px;
+
+  /* ── radii, shadow, motion ────────────────────────────────────────────── */
+  --apx-r-pill:  100px;
+  --apx-r-frame: 28px;
+  --apx-r-card:  16px;
+  --apx-r-card-lg: 22px;
+  --apx-r-team: 22px;
+  --apx-r-chip:  10px;
+  --apx-r-field: 6px;
+  --apx-shadow-card: 0 16px 48px 0 rgba(0, 0, 0, 0.2);
+  --apx-shadow-dot:  0 0 10px 0 var(--apx-teal-light);
+  --apx-dur: 200ms;
+  --apx-dur-md: 300ms;
+  --apx-dur-slow: 400ms;
+
+  /* ── the trust-strip chips ────────────────────────────────────────────
+     HOUSE-STANDARDS `colour-through-globals`: the reference build hardcodes
+     these eight hexes inline. The VALUES are the design and are kept exactly;
+     naming them is what the standard asks for, and it costs nothing visually. */
+  --apx-chip-1-bg: #d3ffe4;  --apx-chip-1-fg: #059669;
+  --apx-chip-2-bg: #d7e3fb;  --apx-chip-2-fg: #2563eb;
+  --apx-chip-3-bg: #f9f3d4;  --apx-chip-3-fg: #d97706;
+  --apx-chip-4-bg: #f3d0d3;  --apx-chip-4-fg: #e11d48;
+
+  /* Breakdance's own grey ramp — used by native components (the accordion), not this design's palette. */
+  --apx-grey-200: #e5e7eb;
+  --apx-grey-400: #9ca3af;
+  --apx-grey-100: #f3f4f6;
+}
+
+/* ============================================================================
+   BASE
+   ============================================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--apx-page);
+  color: var(--apx-text);
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-base);
+  line-height: var(--apx-lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+p { margin: 0; }
+
+/* The type-scale vars ARE the base heading sizes. A heading that carries no preset and no local
+   override (team's "Meet the Team") falls through to these — read off the served build's global
+   default h2 (18px x 1.25^4 = 43.9453px, weight 700, tracking -0.02em), not chosen by eye. */
+h1 { font-size: var(--apx-h1); }
+h2 { font-size: var(--apx-h2); }
+h3 { font-size: var(--apx-h3); }
+h4 { font-size: var(--apx-h4); }
+h5 { font-size: var(--apx-h5); }
+h6 { font-size: var(--apx-h6); }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: var(--apx-font-head);
+  font-weight: 700;
+  line-height: var(--apx-lh-head);
+  letter-spacing: var(--apx-ls-head);
+  color: var(--apx-headings);
+}
+
+.apx-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* ============================================================================
+   LAYOUT — a band, and the container inside it
+   ============================================================================ */
+.apx-band {
+  position: relative;
+  /* NO background by default. Bands that want the paper ground declare it; the reference leaves
+     most of them transparent over the body. Painting white here looked equivalent and is not —
+     it would hide the moment a band is supposed to let something through. */
+}
+.apx-band--paper { background-color: var(--apx-page); }
+
+.apx-band__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: var(--apx-maxw);
+  margin-inline: auto;
+  padding-inline: var(--apx-gut);
+  padding-block: var(--apx-band-pad);
+}
+
+/* 🔴 THE ONE RULE THAT EXISTS BECAUSE OF A DEFECT ON :8098.
+   Every direct child of a band gets an explicit width. On the live build the
+   hero's row carries no width under a centring column flex parent, so it
+   shrink-wraps to 1019px inside a 1200px container and the 52/44 column split
+   it declares gets redistributed by flex-shrink. That is sighting six of
+   `align-items:flex-start` + a child with no intrinsic width (apex-PUNCHLIST),
+   and the fix belongs where the width is decided ONCE, not per band. */
+.apx-band__inner > * { width: 100%; }
+
+.apx-band--dark { background-color: var(--apx-ink); }
+.apx-band--snow { background-color: var(--apx-snow); }
+.apx-band--white { background-color: var(--apx-white); }
+
+/* A dark band does NOT restate the base text colour. On the reference, `is-on-dark` leaves the
+   inherited body colour (mist) exactly where it was and recolours only the elements that need it.
+   Setting cloud on the band instead looked equivalent and was not: every element that does not
+   name its own colour would have rendered one step brighter than the design, and the only place
+   that shows is a band nobody has written yet. */
+/* Only a PLAIN heading on a dark band takes white. A dual heading colours its own two spans and a
+   component title names its own colour, so a blanket `.apx-band--dark h2, h3` rule outranked both
+   by one element-level point and quietly repainted them — the conditions card title came out white
+   where the design says cloud. Don't re-specify what the component already declares. */
+.apx-band--dark h2:not(.apx-dual):not(.apx-cshead__h2) { color: var(--apx-white); }
+/* `.apx-cshead__h2` is excluded for the same reason `.apx-dual` is: both its spans name their own
+   colour, so the element's own colour is never painted -- and the reference leaves it at the
+   global heading ink even on the ink band. Making it white looked equivalent and is not: the
+   moment a span is missing, the heading would vanish into the band instead of showing ink. */
+
+/* Apex's two-glow ground. Verbatim from the served build's ::before. */
+.apx-band--glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(at 80% 20%, rgba(230, 57, 70, 0.07) 0%, transparent 60%),
+    radial-gradient(at 20% 80%, rgba(13, 148, 136, 0.06) 0%, transparent 60%);
+}
+
+/* ============================================================================
+   COMPONENT FAMILY — eyebrow pill
+   ============================================================================ */
+.apx-pill {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  align-self: flex-start;
+  padding: 7px 16px;
+  margin-bottom: 26px;
+  border-radius: var(--apx-r-pill);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.apx-pill__dot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 8px;
+  min-height: 8px;
+  border-radius: var(--apx-r-pill);
+  background-color: var(--apx-teal-light);
+  box-shadow: var(--apx-shadow-dot);
+}
+
+.apx-pill__text {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-eyebrow);
+  font-weight: 600;
+  color: var(--apx-snow);
+}
+
+/* ============================================================================
+   COMPONENT FAMILY — headings
+   ============================================================================ */
+.apx-dual {
+  /* The element's own colour is never seen: both halves are spans that name their own. Kept as the
+     heading default so the dual heading behaves like every other heading if a span is ever absent. */
+  color: var(--apx-headings);
+  margin-bottom: 20px;
+  font-family: var(--apx-font-head);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+.apx-dual--hero { font-size: var(--apx-t-hero); line-height: 1.05; }
+.apx-dual__primary   { color: var(--apx-white); }
+.apx-dual__secondary { color: var(--apx-brand); }
+
+.apx-tagline {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-lead);
+  font-weight: 500;
+  font-style: italic;
+  color: var(--apx-teal-light);
+  margin-bottom: 18px;
+}
+
+.apx-lead {
+  width: 540px;
+  max-width: 100%;
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-lead);
+  line-height: 1.6;
+  color: var(--apx-cloud);
+  margin-bottom: 32px;
+}
+
+/* ⚠️ MATCHES THE SERVED RENDER, AND THE SERVED RENDER CONTRADICTS ITS OWN EMITTER.
+   sections/apex-hero.mjs declares this paragraph as CLOUD (#e2e8f0). Breakdance's global
+   paragraph rule wins over the element's own colour, so what :8098 actually paints is MIST
+   (#94a3b8) — a declared property that never reaches the page, which is the dead-path class of
+   bug that no tree diff and no io-ts check can see. The brief makes the served render the visual
+   target, so the redraw paints what the reference paints. FILED: whether cloud was the intent is
+   a question for the emitter, not something to quietly correct here. */
+.apx-lead p { color: var(--apx-mist); }
+
+/* ============================================================================
+   COMPONENT FAMILY — buttons
+   The record's native Primary/Secondary slots are the source: pill radius,
+   Outfit 600, 14px/28px padding, 200ms. The hero pair overrides size and
+   weight (16px/700, 14px/24px), which is what the served build carries.
+   ============================================================================ */
+.apx-btnrow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+/* `overflow: hidden` added 2026-08-24, once the harness could see the property at all
+   (style-diff-live.mjs, apex-PUNCHLIST "the style gate has no opinion about overflow"). Measured
+   across ten sampled `.bde-button__button` elements on :8098, every variant, every page: ALL TEN
+   compute `overflow: hidden` — a Breakdance button-atom base default, not a per-instance choice, so
+   it belongs on the shared class rather than waived per role. No visual consequence either way
+   (background/box-shadow already respect border-radius natively; nothing on a plain CTA protrudes
+   past it) — this converts an unmeasured-but-matching property into a measured, verified one. */
+.apx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  border: 1px solid transparent;
+  border-radius: var(--apx-r-pill);
+  min-height: 0;
+  overflow: hidden;
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-btn);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  /* Property sets and easing are the reference's, per variant. The buttons use the CSS default
+     `ease`, not ease-in-out; a 200ms curve is not something anyone eyeballs, and it is exactly the
+     kind of value that drifts unnoticed until the whole design feels subtly unlike itself. */
+  transition: background var(--apx-dur) ease, color var(--apx-dur) ease, transform var(--apx-dur) ease;
+}
+
+.apx-btn--primary {
+  background-color: var(--apx-brand);
+  border-color: transparent;
+  color: var(--apx-white);
+}
+.apx-btn--primary:hover { background-color: var(--apx-brand-hover); color: var(--apx-white); }
+
+/* ⚠️ NOT the plain native button, CORRECTED session 11. This is `button-atom--custom` wearing
+   PRESET 0afc88e0 — weight 700, row-reverse, and the phone ::after below. The design's plain
+   `button-atom--primary` is `.apx-btn--atomprimary` further down and differs in three things
+   (weight 600, normal row, no icon); measured on the live /new-patient-special/ call card, which
+   is the first page to use it. Both read as "solid brand pill" and neither is `.apx-btn--primary`,
+   which the hero overrides to DM Sans at a fixed 16px. Three buttons, one look. */
+.apx-btn--native {
+  flex-direction: row-reverse;
+  padding: 14px 28px;
+  background-color: var(--apx-brand);
+  border-color: transparent;
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--native:hover { background-color: var(--apx-brand-hover); color: var(--apx-white); }
+/* CORRECTED 2026-08-20 (session 4): a prior session read this preset's ::after off a
+   truncated CSS dump and transcribed it as an empty reserved slot (SOLVED.md's "truncated
+   CSS read" trap, #4 — the cut always lands right before background-color/mask-image). The
+   full rule in global-settings.css (button-atom--preset-0afc88e0-...::after) sets
+   background-color:currentColor and a mask-image, same phone glyph the header/hero tel:
+   buttons already carry as --apx-icon-phone-solid. This pseudo-element is also why both
+   gates missed it: style-diff-live.mjs calls getComputedStyle(el) with no pseudo-element
+   argument, so a ::after icon is invisible to it on ANY button, correct or wrong. */
+.apx-btn--native::after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-inline: 4px;
+  background-color: currentColor;
+  -webkit-mask-position: 0 0; mask-position: 0 0;
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-image: var(--apx-icon-phone-solid); mask-image: var(--apx-icon-phone-solid);
+}
+/* The 2px rise on the hero's primary CTA. Scoped to the hero pair, because the header's Book Now
+   scales instead — two different buttons, two different gestures, and the reference means both. */
+.apx-btnrow .apx-btn--primary:hover { transform: translateY(-2px); }
+
+/* The design's PLAIN native primary — Breakdance's `button-atom--primary` with the record's own
+   button settings and no preset on top. Measured off the /new-patient-special/ call card and the
+   booking form's submit, which compute identically. */
+.apx-btn--atomprimary {
+  padding: 14px 28px;
+  border-color: transparent;
+  background-color: var(--apx-brand);
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--atomprimary:hover { background-color: var(--apx-brand-hover); color: var(--apx-white); }
+
+.apx-btn--ghost {
+  transition: background var(--apx-dur) ease, border-color var(--apx-dur) ease, color var(--apx-dur) ease;
+  flex-direction: row-reverse;
+  background-color: transparent;
+  border-color: var(--apx-snow);
+  color: var(--apx-snow);
+}
+/* 🔴 IT LIFTS, IT DOES NOT FLIP. An outline button's default hover inverts to a solid fill, which
+   on a dark hero is a white slab — John caught exactly that on the reference build in July and
+   again on this redraw. The reference's answer is an 8% wash and a slightly brighter edge. */
+.apx-btn--ghost:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: var(--apx-white);
+}
+
+/* Button glyphs are masks on currentColor, exactly as the reference draws them, so they recolour
+   with the button instead of shipping one coloured SVG per state.
+   ⚠️ The size is NOT one number. The hero's ghost button scales its glyph with the type (0.9em);
+   the two header buttons pin theirs at 20px, and the header's Book Now takes a 10px left margin
+   rather than 4px. Those three values are the difference between a 120px button and the 154px one
+   the reference draws, which is why they are stated per variant instead of shared. */
+.apx-btn__icon::after {
+  content: "";
+  display: block;
+  background-color: currentColor;
+  -webkit-mask-position: 0 0; mask-position: 0 0;
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  transition: transform var(--apx-dur) ease-in-out,
+              background-color var(--apx-dur) ease-in-out;
+}
+
+.apx-btn--phone::after {
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 4px;
+  margin-right: 4px;
+  -webkit-mask-image: var(--apx-icon-phone); mask-image: var(--apx-icon-phone);
+}
+
+.apx-btn--nav-phone::after {
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+  margin-right: 4px;
+  -webkit-mask-image: var(--apx-icon-phone-solid); mask-image: var(--apx-icon-phone-solid);
+}
+
+.apx-btn--nav-book::after {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  margin-right: 4px;
+  -webkit-mask-image: var(--apx-icon-arrow); mask-image: var(--apx-icon-arrow);
+}
+
+:root {
+  --apx-icon-phone-solid: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%23e3e3e3%22%3E%3Cpath%20d%3D%22M798-120q-125%200-247-54.5T329-329Q229-429%20174.5-551T120-798q0-18%2012-30t30-12h162q14%200%2025%209.5t13%2022.5l26%20140q2%2016-1%2027t-11%2019l-97%2098q20%2037%2047.5%2071.5T387-386q31%2031%2065%2057.5t72%2048.5l94-94q9-9%2023.5-13.5T670-390l138%2028q14%204%2023%2014.5t9%2023.5v162q0%2018-12%2030t-30%2012ZM241-600l66-66-17-94h-89q5%2041%2014%2081t26%2079Zm358%20358q39%2017%2079.5%2027t81.5%2013v-88l-94-19-67%2067ZM241-600Zm358%20358Z%22%2F%3E%3C%2Fsvg%3E");
+  --apx-icon-arrow: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20d%3D%22M502.6%20278.6c12.5-12.5%2012.5-32.8%200-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3%200s-12.5%2032.8%200%2045.3L402.7%20224%2032%20224c-17.7%200-32%2014.3-32%2032s14.3%2032%2032%2032l370.7%200-73.4%2073.4c-12.5%2012.5-12.5%2032.8%200%2045.3s32.8%2012.5%2045.3%200l128-128z%22%2F%3E%3C%2Fsvg%3E");
+  --apx-icon-phone: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20style%3D%22fill%3Anone%3Bstroke%3AcurrentColor%3Bstroke-width%3A2%3Bstroke-linecap%3Around%3Bstroke-linejoin%3Around%22%3E%3Cpath%20d%3D%22M22%2016.92v3a2%202%200%200%201-2.18%202%2019.79%2019.79%200%200%201-8.63-3.07%2019.5%2019.5%200%200%201-6-6%2019.79%2019.79%200%200%201-3.07-8.67A2%202%200%200%201%204.11%202h3a2%202%200%200%201%202%201.72c.13.96.36%201.9.7%202.81a2%202%200%200%201-.45%202.11L8.09%209.91a16%2016%200%200%200%206%206l1.27-1.27a2%202%200%200%201%202.11-.45c.91.34%201.85.57%202.81.7A2%202%200%200%201%2022%2016.92z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* ============================================================================
+   BAND — header
+   ============================================================================ */
+.apx-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 100;
+  background: var(--apx-ink);
+  transition: background-color var(--apx-dur) ease-in-out, box-shadow var(--apx-dur) ease-in-out,
+              opacity var(--apx-dur) ease-in-out, top var(--apx-dur) ease-in-out,
+              transform var(--apx-dur) ease-in-out;
+}
+
+.apx-header__inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  max-width: var(--apx-maxw);
+  min-height: 80px;
+  margin-inline: auto;
+  padding-inline: var(--apx-gut);
+  transition: min-height var(--apx-dur) ease-in-out;
+}
+
+.apx-header__brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.apx-header__logo {
+  width: 160px;
+  max-width: 160px;
+  height: auto;
+  transition: opacity var(--apx-dur-slow) ease-in-out;
+}
+.apx-header__logo--dark { position: absolute; opacity: 0; }
+
+.apx-nav { display: flex; }
+.apx-nav__list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.apx-nav__link {
+  display: block;
+  padding-block: 4px;
+  font-family: var(--apx-font-head);
+  font-size: var(--apx-t-nav);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--apx-mist);
+  transition: background-color var(--apx-dur) ease, color var(--apx-dur) ease;
+}
+/* The reference does NOT recolour a nav link on hover — it draws a 2px brand bar under it and
+   leaves the type alone. Measured: hovering a live menu link changes no property of the link
+   itself. Recolouring instead is louder than the design and was only invisible because the first
+   version of the behaviour probe could not see a pseudo-element. */
+.apx-nav__item { position: relative; }
+/* Measured off the reference, which draws the bar on the ITEM and not on the link, and grows it on
+   the Y axis from the baseline rather than sweeping it in from the left. A left-to-right sweep is
+   the reflex and it is the wrong gesture: the bar appears in place. */
+.apx-nav__item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: var(--apx-brand);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--apx-dur) ease, opacity var(--apx-dur) ease,
+              background-color var(--apx-dur) ease;
+}
+.apx-nav__item:hover::before,
+.apx-nav__item--active::before { transform: none; }
+.apx-nav__item--active .apx-nav__link { color: var(--apx-brand); }
+
+.apx-header__cta { display: flex; align-items: center; gap: 12px; }
+
+/* The two header buttons are NOT the hero's buttons at a smaller size. The reference gives them
+   the nav's own type ramp and a much tighter vertical padding, so they sit inside an 80px bar
+   without dominating it: 5px/24px, DM Sans 500 at the nav clamp, line-height 1. */
+.apx-btn--nav {
+  /* The header pair carries Breakdance's own blanket `all` transition rather than the hero pair's
+     named property list. Two different declarations in the reference, kept as two here. */
+  transition: all var(--apx-dur) ease-in-out;
+  padding: 5px 24px;
+  font-size: var(--apx-t-nav);
+  font-weight: 500;
+}
+
+.apx-btn--nav-phone {
+  flex-direction: row-reverse;
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--apx-mist);
+}
+.apx-btn--nav-phone:hover { background-color: var(--apx-brand); color: var(--apx-white); }
+
+.apx-btn--nav-book:hover { transform: scale(1.1); }
+
+/* The scrolled state: ground flips to white, bar shortens, the dark mark fades
+   in over the white one. Both marks ship; neither is drawn twice. */
+.apx-header--scrolled { background: var(--apx-white); }
+.apx-header--scrolled .apx-header__inner { min-height: 60px; }
+.apx-header--scrolled .apx-header__logo--white { opacity: 0; }
+.apx-header--scrolled .apx-header__logo--dark  { opacity: 1; }
+.apx-header--scrolled .apx-nav__link { color: var(--apx-steel); }
+.apx-header--scrolled .apx-header__border { height: 1px; background: var(--apx-cloud); }
+.apx-header__border { height: 0; }
+
+.apx-menu-toggle { display: none; }
+
+/* ============================================================================
+   BAND — hero
+   ============================================================================ */
+.apx-hero__inner {
+  align-items: center;
+  justify-content: center;
+  padding-top: 180px;
+  padding-bottom: 104px;
+  text-align: center;
+}
+.apx-hero__row { text-align: left; }
+
+.apx-hero__row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 56px;
+}
+
+/* `align-items: flex-start` on these columns is the reference's own and is kept: every child here
+   has an intrinsic width (text) or an explicit one (the button row, the frame), so nothing can
+   collapse. It is the same keyword as the filed defect and a different situation, which is the
+   distinction worth holding on to. */
+.apx-hero__copy  { display: flex; flex-direction: column; align-items: flex-start; width: 52%; }
+.apx-hero__media { position: relative; display: flex; flex-direction: column; align-items: flex-start; width: 44%; }
+
+.apx-hero__frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 440px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: var(--apx-r-frame);
+  background-color: var(--apx-slate);
+  text-align: center;
+}
+
+.apx-hero__photo { width: 100%; height: 100%; object-fit: cover; }
+
+/* A blank surface FILLS, it never hides. When the record carries no hero photo
+   the frame states what belongs there rather than collapsing to an empty box. */
+.apx-hero__placeholder {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-eyebrow);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--apx-steel);
+}
+
+.apx-float { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; width: auto; }
+.apx-float--tr { top: -14px; right: -26px; }
+.apx-float--bl { bottom: 34px; left: -42px; }
+
+/* The two stat cards drift. Transcribed from the reference's own rule, which came from the master:
+   3s ease-in-out, infinite, no fill mode.
+   🔴 THE STAGGER IS THE EFFECT, not a detail. Both cards on the same delay bob in lockstep and read
+   as one rigid object sliding; a full second between them lets them drift independently. Dropping
+   the delay would look implemented and be wrong, and no gate that only checks "is it animated"
+   would say so — which is why the behaviour harness compares delay, not just presence.
+   ⚠️ The animation is on the CARD, not on the positioning wrapper. Putting it on the wrapper looks
+   identical in a screenshot and is a different element in the diff. */
+@keyframes apxFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.apx-statcard { animation: apxFloat 3s ease-in-out infinite; }
+.apx-float--tr .apx-statcard { animation-delay: 1s; }
+.apx-float--bl .apx-statcard { animation-delay: 0s; }
+
+.apx-statcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px 22px;
+  border-radius: var(--apx-r-card);
+  background-color: var(--apx-white);
+  box-shadow: var(--apx-shadow-card);
+  text-align: center;
+}
+
+.apx-statcard__value {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-stat);
+  font-weight: 800;
+  color: var(--apx-brand);
+}
+.apx-statcard__value--score {
+  font-size: var(--apx-t-score);
+  color: var(--apx-ink);
+}
+.apx-statcard__label {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-micro);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--apx-steel);
+}
+.apx-statcard__label--sm { font-size: var(--apx-t-nano); }
+
+/* ============================================================================
+   BAND — trust strip
+   ============================================================================ */
+.apx-trust { border-block: 1px solid var(--apx-cloud); }
+.apx-trust__inner { padding-block: 28px; }
+
+.apx-trust__row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 48px;
+}
+/* `flex-start` here is the reference's own and is NOT the filed defect: on a ROW container it
+   governs the cross (vertical) axis, and every item is content-height. The defect is flex-start
+   on a COLUMN container, where it governs the inline axis and a child with no intrinsic width
+   collapses. Same keyword, opposite consequence, which is exactly why the sighting count kept
+   climbing: it was being read as a keyword rather than as a keyword-plus-direction. */
+
+.apx-trust__item {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: auto;
+}
+
+.apx-trust__chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-height: 40px;
+  border-radius: var(--apx-r-chip);
+  text-align: center;
+}
+.apx-trust__chip svg { width: 25px; height: 25px; }
+
+.apx-trust__item:nth-child(1) .apx-trust__chip { background-color: var(--apx-chip-1-bg); }
+.apx-trust__item:nth-child(1) .apx-trust__chip svg { fill: var(--apx-chip-1-fg); }
+.apx-trust__item:nth-child(2) .apx-trust__chip { background-color: var(--apx-chip-2-bg); }
+.apx-trust__item:nth-child(2) .apx-trust__chip svg { fill: var(--apx-chip-2-fg); }
+.apx-trust__item:nth-child(3) .apx-trust__chip { background-color: var(--apx-chip-3-bg); }
+.apx-trust__item:nth-child(3) .apx-trust__chip svg { fill: var(--apx-chip-3-fg); }
+.apx-trust__item:nth-child(4) .apx-trust__chip { background-color: var(--apx-chip-4-bg); }
+.apx-trust__item:nth-child(4) .apx-trust__chip svg { fill: var(--apx-chip-4-fg); }
+
+.apx-trust__label {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-t-trust);
+  font-weight: 500;
+  color: var(--apx-steel);
+}
+
+/* ============================================================================
+   RESPONSIVE — the reference's own breakpoints (1119 / 1023 / 767 / 479)
+   ============================================================================ */
+@media (max-width: 1023px) {
+  .apx-hero__row { flex-direction: column; align-items: stretch; }
+  .apx-hero__copy, .apx-hero__media { width: 100%; }
+  .apx-header__logo { width: 140px; max-width: 140px; }
+  .apx-trust__row { gap: 1px; }
+  .apx-nav__list { display: none; }
+  .apx-menu-toggle { display: block; }
+}
+
+@media (max-width: 767px) {
+  .apx-btnrow { flex-direction: column; align-items: stretch; }
+  .apx-btnrow .apx-btn { width: 100%; }
+  .apx-trust__row { flex-direction: column; gap: 24px; }
+  .apx-header__logo { width: 130px; max-width: 130px; }
+  .apx-hero__inner { padding-top: 140px; padding-bottom: 72px; }
+}
+
+/* Motion off means motion OFF, but never `animation: none` on an `infinite`
+   keyframe — that is what made a reveal vibrate once. Durations to ~0 instead. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    /* 🔴 WITHOUT THIS LINE THE RESET MAKES THINGS WORSE, NOT BETTER (fixed 2026-09-09).
+       Clamping duration alone leaves `animation-iteration-count: infinite` intact, so a
+       looping animation restarts every 0.01ms forever — it VIBRATES, at speed, for
+       exactly the user who asked for less motion. Pinning the count to 1 lets the
+       animation resolve to its end state once and stop. */
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   COMPONENT FAMILY — section header
+   Eyebrow, dual heading, sub, centred in a 590px measure. This block opens most
+   bands on the site, which is why it is a family and not part of any one of them.
+   ============================================================================ */
+.apx-secthead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 590px;
+  max-width: 100%;
+  text-align: center;
+}
+
+/* Preset "Eyebrow Text Brand Color" from the design record, as a class. Outfit rather than the
+   body face, and the 0.12em tracking is what makes it read as a label instead of small copy. */
+.apx-eyebrow {
+  font-family: var(--apx-font-head);
+  font-size: var(--apx-t-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--apx-brand);
+  margin-bottom: 16px;
+}
+.apx-eyebrow--teal-light { color: var(--apx-teal-light); }
+.apx-eyebrow--teal { color: var(--apx-teal); }
+
+/* Preset "Dual Heading BLK/Brand" — the band-level heading, distinct from the hero's larger one. */
+.apx-dual--section { font-size: clamp(32px, 4vw, 52px); line-height: 1.1; }
+.apx-dual--section .apx-dual__primary { color: var(--apx-headings); }
+.apx-band--dark .apx-dual--section .apx-dual__primary { color: var(--apx-white); }
+
+.apx-secthead__sub { color: var(--apx-steel); }
+.apx-band--dark .apx-secthead__sub { color: var(--apx-mist); }
+
+/* ============================================================================
+   COMPONENT FAMILY — the stack, and the card grid
+   ============================================================================ */
+.apx-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 64px;
+  width: 100%;
+  text-align: center;
+}
+
+.apx-cardgrid {
+  display: grid;
+  flex-direction: column;
+  grid-template-columns: repeat(var(--apx-cols, 4), minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+  justify-items: stretch;
+}
+
+/* A card is a column so the body can grow and push the link to the bottom edge, which is what
+   keeps a row of cards with unequal blurb lengths reading as one row rather than four objects. */
+.apx-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  height: 100%;
+  border: 1px solid var(--apx-cloud);
+  border-radius: var(--apx-r-card-lg);
+  background-color: var(--apx-snow);
+  text-align: left;
+  /* A ZERO-SIZED shadow at rest, not `none`. box-shadow cannot transition from `none` to a value,
+     so a card declared with no shadow would snap its shadow on at the end of the lift instead of
+     growing it. The reference's resting shadow is the hover shadow collapsed to nothing. */
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.145);
+  /* The reference gives the card a blanket 400ms, twice the button duration. A card is a bigger
+     object and it lifts further (8px against 2px), so the slower curve is the design, not a typo. */
+  transition: all var(--apx-dur-slow) ease;
+}
+.apx-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 20px 60px 0 rgba(0, 0, 0, 0.10);
+  transform: translateY(-8px);
+}
+
+/* 4:3 is the card's own ratio and the source images are 3:2, so `object-fit: cover` is doing real
+   work here — without it the art is stretched, which is the trap the photo-slot registry records
+   against the `feature` preset. */
+.apx-card__img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.apx-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-grow: 1;
+  padding: 24px;
+}
+
+.apx-card__title {
+  font-size: clamp(16px, 14.83px + 0.326vw, 19px);
+  margin-bottom: 8px;
+}
+
+.apx-card__blurb {
+  color: var(--apx-steel);
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 8px;
+}
+
+.apx-card__link {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--apx-brand);
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .apx-cardgrid { --apx-cols: 1; }
+}
+
+/* ── band inner as a centred stack ──────────────────────────────────────────
+   Some bands put the stack on an inner div (services) and some put it on the
+   band container itself (conditions). Same object, two places, so it is a
+   modifier rather than a second copy of the rule. */
+.apx-band__inner--stack {
+  align-items: center;
+  gap: 64px;
+  text-align: center;
+}
+
+/* The SAME centring without the stack's 64px gap or text-align. Breakdance's `.section-container`
+   is centred on every band; most of ours override it back to flex-start because their own content
+   declares a width, but a band whose children are plain full-width blocks keeps the centring. Two
+   different rules on the reference, so two modifiers rather than one that carries a gap nobody
+   asked for. */
+.apx-band__inner--center { align-items: center; justify-content: center; }
+
+/* ── conditions band ────────────────────────────────────────────────────── */
+.apx-conditions { overflow: hidden; }
+/* Its own two-glow ground, and NOT the hero's. The tints and the corners are
+   close enough to look like a copy-paste and they are not the same numbers;
+   using one for both would be a quiet drift on the most-seen surface. */
+.apx-conditions::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 80% 20%, #e6394612 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, #0d94880f 0%, transparent 60%);
+}
+
+/* A condition card is a LINK, whole. The image sits beside the copy rather than
+   above it, which is what lets six of them sit in three columns without the
+   band becoming a wall of photographs. */
+.apx-condcard {
+  /* The card is an <a>, so it takes the link colour; the title and blurb name their own. This
+     matters because currentColor is what an unstyled border resolves to. */
+  color: var(--apx-brand);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px;
+  border: 2px solid #ffffff12;
+  border-radius: var(--apx-r-card);
+  background-color: #ffffff0a;
+  text-align: left;
+  transition: background-color var(--apx-dur-md) ease-in-out, border-color var(--apx-dur-md) ease-in-out,
+              box-shadow var(--apx-dur-md) ease-in-out, color var(--apx-dur-md) ease-in-out;
+}
+.apx-condcard:hover {
+  background-color: #ffffff12;
+  border-color: #e6394650;
+  transform: translateY(-4px);
+}
+
+.apx-condcard__img {
+  flex-shrink: 0;
+  width: 100px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.apx-condcard__body { display: flex; flex-direction: column; align-items: flex-start; flex-grow: 1; }
+
+.apx-condcard__title {
+  color: var(--apx-snow);
+  transition: color var(--apx-dur-md) ease-in-out;
+  font-size: clamp(16px, 15.61px + 0.109vw, 17px);
+  font-weight: 700;
+}
+
+.apx-condcard__blurb {
+  color: var(--apx-mist);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+/* ============================================================================
+   SCROLL REVEAL
+   Content is VISIBLE BY DEFAULT. `.apx-reveal` on its own paints normally; the
+   JS adds `.apx-armed` only to elements that start below the fold, and the
+   observer then adds `.apx-in`. Fail-visible: if the script never runs, every
+   band is simply there.
+   ⚠️ This is structurally the wrong instrument for the FIRST band — a hero is
+   by definition on screen at load, so it is never armed and never moves. That
+   is the system working, not a bug to chase.
+   ============================================================================ */
+.apx-reveal.apx-armed {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1),
+              transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.apx-reveal.apx-armed.apx-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .apx-reveal.apx-armed {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ============================================================================
+   BAND — why choose us: a photo column and a copy column
+   ============================================================================ */
+.apx-why::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at right, rgba(230, 57, 70, 0.04), transparent 70%);
+}
+
+.apx-cols {
+  display: flex;
+  flex-direction: row;
+  gap: 80px;
+  width: 100%;
+}
+/* `flex: 0 0 calc(...)` and `min-width: 0`, NOT `width: 50%`. With width alone a child wider than
+   its share (the 560px intro paragraph) pushes its column out and steals from the other one: the
+   two columns measured 560 and 520 instead of 540 and 540. min-width:0 is what lets a flex item
+   be narrower than its content. */
+.apx-cols > * {
+  flex: 0 0 calc((100% - 80px) / 2);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.apx-why__photocol { position: relative; }
+
+/* 3:4 with object-fit, because the source art is not 3:4 and a plain img would letterbox or
+   stretch. The 32px radius is the largest on the design and it is deliberate: this is the only
+   full-height photograph on the page. */
+.apx-photoframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  overflow: hidden;
+  border-radius: 32px;
+}
+
+/* The years badge hangs off the photo's right edge. The glow under it is the brand colour at 40%,
+   which is what stops it reading as a sticker pasted on top. */
+.apx-yearsbadge {
+  position: absolute;
+  right: -24px;
+  bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 24px;
+  border-radius: 14px;
+  background-color: var(--apx-brand);
+  box-shadow: 0 12px 40px 0 #e6394666;
+  text-align: center;
+}
+.apx-yearsbadge__n {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(29px, 26.26px + 0.761vw, 36px);
+  font-weight: 900;
+  line-height: 1;
+}
+.apx-yearsbadge__label {
+  color: #ffffffd9;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.apx-why__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; }
+
+/* ── COMPONENT FAMILY — feature list ────────────────────────────────────── */
+.apx-featurelist { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; margin-top: 32px; }
+
+.apx-feature { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 16px; }
+
+/* Built from ONE token at two alpha levels rather than two hardcoded tints, so a per-client accent
+   swap carries it. ⚠️ The token is `teal` (#0d9488), NOT `teal-light` (#5eead4) — the two swatches
+   sit next to each other in the palette record and the uuid is the only thing that tells them
+   apart. Read off the compiled CSS, not chosen by eye. */
+.apx-feature__icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-height: 28px;
+  margin-top: 2px;
+  border: 1px solid color-mix(in srgb, var(--apx-teal) 20%, transparent);
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--apx-teal) 10%, transparent);
+  color: var(--apx-teal);
+  text-align: center;
+}
+.apx-feature__icon svg { width: 14px; height: 14px; }
+
+.apx-feature__body { display: flex; flex-direction: column; gap: 6px; }
+
+.apx-feature__title {
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 14.83px + 0.326vw, 19px);
+  margin-bottom: 0;
+}
+
+.apx-feature__text {
+  color: var(--apx-steel);
+  font-family: var(--apx-font-body);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+@media (max-width: 1023px) {
+  .apx-cols { flex-direction: column; }
+  .apx-cols > * { flex: 0 0 auto; width: 100%; }
+  .apx-yearsbadge { right: 21px; }
+}
+@media (max-width: 767px) {
+  .apx-yearsbadge { bottom: 19px; }
+}
+
+/* ============================================================================
+   BAND — team grid
+   ============================================================================ */
+.apx-team__head {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  margin-bottom: 56px;
+}
+.apx-team__headcopy { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.apx-team__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; }
+
+/* A LARGE glow-primary, not an outline. Solid brand fill, white text, a coloured shadow that
+   deepens on hover and a 2px lift. This was mis-transcribed once as an outline button from a
+   TRUNCATED CSS read — the actual declaration carries a background-color and a box-shadow that
+   the first pass missed by reading only the first 250 characters of the rule. Re-read in full. */
+/* transition: all, at the base button-atom duration (200ms) — NOT the wrapper's 400ms.
+   Measured: the reference wraps this button in a div carrying its own 400ms transform-only
+   transition, but that governs the WRAPPER, a node this single-element markup has no equivalent
+   of. What the INNER button element itself resolves to is button-atom's base rule. */
+.apx-btn--glow {
+  flex-shrink: 0;
+  padding: 16px 36px;
+  background-color: var(--apx-brand);
+  border-color: transparent;
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 24px 0 rgba(230, 57, 70, 0.314);
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--glow:hover {
+  background-color: var(--apx-brand-hover);
+  color: var(--apx-white);
+  box-shadow: 0 8px 32px 0 rgba(230, 57, 70, 0.4);
+  transform: translateY(-2px);
+}
+
+/* `flex-direction: column; align-items: stretch;` here are NOT layout decisions — a grid container
+   ignores both. They exist because Breakdance gives every div a flex-direction:column baseline
+   BEFORE the grid-specific rule sets display:grid, and never clears it. A getComputedStyle diff
+   sees the leftover value regardless of whether it does anything, so it has to be matched. */
+.apx-teamgrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(var(--apx-cols, 4), minmax(0, 1fr));
+  gap: 72px;
+  width: 100%;
+}
+
+.apx-teamcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  background-color: var(--apx-white);
+  border-radius: var(--apx-r-team);
+  box-shadow: 0 2px 8px 0 #0000000a;
+  transition: all var(--apx-dur-slow) ease-in-out;
+}
+.apx-teamcard:hover { box-shadow: 0 16px 48px 0 #00000014; transform: translateY(-6px); }
+
+.apx-teamcard__photo { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; }
+
+.apx-teamcard__body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; }
+.apx-teamcard__name { font-size: clamp(16px, 14.43px + 0.435vw, 20px); margin-bottom: 4px; }
+.apx-teamcard__role { color: var(--apx-brand); font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+.apx-teamcard__bio { color: var(--apx-steel); font-size: 14px; line-height: 1.65; }
+
+/* One pill, the whole credential string ("DC, CCSP") — NOT one chip per credential. Measured off
+   the reference: apex-loops.mjs binds the credential field as a single string into one styled
+   wrapper, which is a different shape from lift-team-band.mjs's per-chip card (that renderer is
+   for a different surface; this grid clones the master's lifted block instead). */
+.apx-teamcard__creds {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 4px 10px;
+  border: 1px solid #0d948826;
+  border-radius: var(--apx-r-pill);
+  background: #0d94881a;
+  color: var(--apx-teal);
+  font-family: var(--apx-font-head);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .apx-team__head { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .apx-teamgrid { --apx-cols: 1; }
+}
+
+/* ============================================================================
+   BAND — google reviews trust bar (dark gradient strip between team and stories)
+   ============================================================================ */
+.apx-googlebar {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--apx-slate) 0%, var(--apx-ink) 98.97435897435898%);
+}
+.apx-googlebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(230, 57, 70, 0.06), transparent 70%);
+}
+.apx-googlebar__inner { align-items: center; padding-block: 56px; }
+
+/* `width: auto`, NOT the band-inner default 100%. `.apx-band__inner > *` forces every direct child
+   to full width so a flex-start row cannot collapse (session 1's hero defect), and that rule is
+   right almost everywhere — this is the one row that is meant to hug its own content and sit
+   centred, so it opts back out explicitly. */
+.apx-googlebar__row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 56px;
+  width: auto !important;
+}
+
+.apx-googlebar__brand { display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 12px; }
+.apx-googlebar__brand svg { width: 28px; height: 28px; }
+.apx-googlebar__brandtext {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(19px, 17.04px + 0.543vw, 24px);
+  font-weight: 700;
+}
+
+.apx-googlebar__stat { display: flex; flex-direction: row; align-items: center; gap: 12px; }
+.apx-googlebar__score {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(38px, 34.09px + 1.087vw, 48px);
+  font-weight: 800;
+  line-height: 1;
+}
+.apx-googlebar__scoremeta { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.apx-googlebar__count { color: var(--apx-mist); font-size: 14px; }
+
+/* Same "all, base duration, on the inner element" story as .apx-btn--glow above. */
+.apx-btn--ghost-outline {
+  padding: 14px 32px;
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--ghost-outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 767px) {
+  .apx-googlebar__row { flex-direction: column; gap: 24px; }
+}
+
+/* ============================================================================
+   BAND — patient stories
+   ============================================================================ */
+/* flex-direction:column; align-items:stretch here are the same Breakdance div-baseline leftover
+   as .apx-teamgrid — irrelevant to a grid container's actual layout, matched because a computed-
+   style diff sees them regardless. */
+.apx-storygrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(var(--apx-cols, 3), minmax(0, 1fr));
+  gap: 68px;
+  width: 100%;
+}
+
+.apx-storycard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 36px;
+  background-color: var(--apx-snow);
+  border: 1px solid rgba(255, 255, 255, 0);
+  border-radius: var(--apx-r-team);
+  transition: all var(--apx-dur-slow) ease-in-out;
+  text-align: left;
+}
+.apx-storycard:hover {
+  border-color: var(--apx-cloud);
+  box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+}
+
+/* The oversized quote mark is decorative, so it is drawn rather than typed — a screen reader has
+   nothing to announce for it either way, which a literal curly-quote CHARACTER in the DOM would not
+   guarantee (some AT reads punctuation aloud). */
+.apx-storycard::before {
+  content: "\201C";
+  position: absolute;
+  top: 8px;
+  left: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 96px;
+  line-height: 1;
+  color: var(--apx-brand);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* 🔴 JOHN'S EYE PASS, 2026-08-22 — a declared deviation, not a reference value. :8098's story card
+   holds zero svgs; he asked for the same gold row the service page's review card already carries.
+   The VALUES are that component's (16px, 3px gap, gold), so the two read as one design; the class
+   is its own because `.apx-storycard` and `.apx-revcard` differ in every other number and sharing
+   the rule would drag one band's spacing onto the other. See WAIVERS.md. */
+.apx-storycard__stars { display: flex; flex-direction: row; gap: 3px; margin-bottom: 12px; }
+.apx-storycard__stars svg { width: 16px; height: 16px; fill: var(--apx-gold); display: block; }
+.apx-storycard__text {
+  position: relative;
+  z-index: 1;
+  color: var(--apx-slate);
+  font-size: 15px;
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 24px;
+}
+
+.apx-storycard__byline { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 14px; }
+
+.apx-storycard__avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+  /* border-top-color has no visible effect at border-width:0, but matches the reference's own
+     inherited value (mist) rather than the currentColor default a white-text element would
+     otherwise resolve to. */
+  border-top-color: var(--apx-mist);
+  background: linear-gradient(135deg, var(--apx-brand) 1%, var(--apx-ember-glow) 100%);
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  font-weight: 700;
+}
+
+.apx-storycard__namewrap { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
+.apx-storycard__name { color: var(--apx-headings); font-family: var(--apx-font-head); font-size: 15px; font-weight: 600; }
+
+@media (max-width: 767px) {
+  .apx-storygrid { --apx-cols: 1; }
+}
+
+/* stories.head shrink-wraps to its own content rather than the shared 590px measure — the
+   reference declares no width at all on this particular head, unlike services/conditions/why,
+   which all pin one. A per-band CSS override, since forcing it through the shared class would
+   make the OTHER three bands wrong instead. */
+[data-sd="stories.head"] {
+  width: auto;
+  justify-content: normal;
+  margin-bottom: 64px;
+}
+[data-sd="stories.sub"] {
+  width: 560px;
+  line-height: 1.75;
+}
+
+/* ============================================================================
+   BAND — proudly local (service area + map)
+   ============================================================================ */
+.apx-local { border-block: 1px solid var(--apx-cloud); }
+
+.apx-local__copycol { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.apx-local__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; margin-bottom: 32px; }
+
+/* No explicit width: the parent (align-items:flex-start) does not stretch its children, so this
+   shrink-wraps to its own intrinsic grid-track sizing exactly as the reference's does — measured
+   to land on the same pixel widths since both sides grid the same six town names.
+   flex-direction/align-items here are the familiar BD-div-baseline leftover, not a grid decision. */
+.apx-towngrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.apx-townpill {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 8px;
+  background-color: var(--apx-white);
+}
+.apx-townpill__dot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 6px;
+  min-height: 6px;
+  border-radius: var(--apx-r-pill);
+  background-color: var(--apx-brand);
+}
+.apx-townpill__label { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: 14px; font-weight: 500; }
+
+.apx-infonote {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--apx-cloud);
+  border-left: 3px solid var(--apx-brand);
+  border-radius: 8px;
+  background-color: var(--apx-white);
+}
+.apx-infonote__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  color: var(--apx-mist);
+}
+.apx-infonote__icon svg { width: 20px; height: 20px; }
+.apx-infonote__text { color: var(--apx-steel); font-size: 14px; line-height: 1.65; }
+
+.apx-mapframe {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--apx-r-frame);
+  background-color: var(--apx-cloud);
+  box-shadow: 0 20px 60px 0 rgba(0, 0, 0, 0.08);
+}
+.apx-mapframe iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+@media (max-width: 1023px) {
+  .apx-mapframe { aspect-ratio: 16 / 9; }
+}
+
+/* ============================================================================
+   BAND — faq (sticky sidebar + native accordion)
+   ============================================================================ */
+.apx-faq__cols { display: flex; flex-direction: row; gap: 80px; width: 100%; }
+/* `calc(<pct>% - (gap/2))`, NOT a bare percentage. Breakdance's two-column flex-basis formula
+   subtracts HALF the column gap from the naive percent-of-total, and a bare 42%/58% overshoots
+   by exactly that half-gap on both sides — measured, not derived from a spec. */
+.apx-faq__sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 0 0 calc(42% - 40px);
+  min-width: 0;
+}
+.apx-faq__accordioncol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 0 0 calc(58% - 40px);
+  min-width: 0;
+}
+
+/* The sidebar tracks the scroll while the accordion column is taller than it, then stops at
+   120px from the top — the header's own resting height plus a little air. */
+.apx-faq__sticky { position: sticky; top: 120px; display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
+.apx-faq__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; margin-bottom: 32px; }
+
+/* ── native accordion, matching Breakdance's own bordered style ─────────────────────────────── */
+/* --apx-grey-200 is Breakdance's OWN grey ramp, not this design's 14-swatch palette — the native
+   accordion component is styled off it directly and it is a different value from --apx-cloud
+   (#e5e7eb vs #e2e8f0), close enough to look identical in a screenshot and different enough that a
+   computed-style diff catches it. */
+/* 🔴 `overflow: hidden` IS JOHN'S, NOT THE REFERENCE'S (eye pass, 2026-08-22). Measured on both
+   builds first: :8098's accordion computes `overflow: visible` and so did this one, so the open
+   panel's square background paints over the group's own 8px corners and the box stops being
+   rounded the moment anyone uses it. A declared deviation — the reference has the same defect and
+   he ruled it fixed. The radius the clip protects is the reference's own 8px; nothing else moved.
+   See WAIVERS.md. */
+.apx-accordion { width: 100%; display: flex; flex-direction: column; gap: 0; border: 2px solid var(--apx-grey-200); border-radius: 8px; overflow: hidden; }
+
+.apx-accordion__item { outline: 0; }
+.apx-accordion__item:not(:last-child) { border-bottom: 2px solid var(--apx-grey-200); }
+.apx-accordion__item:first-child .apx-accordion__button { border-radius: 8px 8px 0 0; }
+.apx-accordion__item:last-child .apx-accordion__button { border-radius: 0 0 8px 8px; }
+
+.apx-accordion__button {
+  /* Family/size/line-height inherit from the h3 wrapper (measured: 35.15px Outfit — the h3
+     scale, invisible because the title span inside declares its own 18px). font-WEIGHT does not
+     follow: the reference's button stays at the browser's native button weight (400), so it is
+     named explicitly rather than inherited. */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: 400;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--apx-dur) ease;
+}
+.apx-accordion__button:hover { background-color: var(--apx-grey-100); }
+
+.apx-accordion__title {
+  width: 100%;
+  color: var(--apx-headings);
+  font-family: var(--apx-font-body);
+  font-size: 18px;
+  font-weight: 600;
+  transition: all var(--apx-dur-md) ease;
+}
+
+.apx-accordion__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background-color: var(--apx-grey-400);
+  transition: all var(--apx-dur) ease;
+  -webkit-mask: var(--apx-icon-chevron) 0 0 / 100% 100% no-repeat;
+  mask: var(--apx-icon-chevron) 0 0 / 100% 100% no-repeat;
+}
+.apx-accordion__button[aria-expanded="true"] .apx-accordion__icon { transform: rotate(90deg); }
+
+.apx-accordion__panel { overflow: hidden; transition: height var(--apx-dur-md) ease; }
+.apx-accordion__panel[hidden] { display: none; }
+
+.apx-accordion__panel-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px;
+  text-align: left;
+}
+.apx-accordion__item:last-child .apx-accordion__panel-content { border-bottom: 0; }
+
+.apx-accordion__answer { color: var(--apx-steel); font-size: 15px; line-height: 1.7; }
+
+:root {
+  --apx-icon-chevron: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20320%20512%22%3E%3Cpath%20d%3D%22M285.476%20272.971L91.132%20467.314c-9.373%209.373-24.569%209.373-33.941%200l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505%20256%2034.484%20101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373%2024.569-9.373%2033.941%200L285.475%20239.03c9.373%209.372%209.373%2024.568.001%2033.941z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+@media (max-width: 1023px) {
+  .apx-faq__cols { flex-direction: column; }
+  .apx-faq__sidebar, .apx-faq__accordioncol { flex: 0 0 auto; width: 100%; }
+  .apx-faq__sticky { position: static; }
+}
+
+/* ============================================================================
+   BAND — closing offer CTA
+   A global, shared block per its own source template (post 246) — not rebuilt
+   per-page-type the way the loop bands above are, and it carries no reveal
+   class in the reference.
+   ============================================================================ */
+[data-sd="offer.inner"] { align-items: center; justify-content: center; }
+[data-sd="aboutteam.inner"] { align-items: center; justify-content: center; }
+
+.apx-offercard {
+  width: auto !important;
+  max-width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(48px, 6vw, 80px);
+  border-radius: 32px;
+  background-color: var(--apx-brand);
+}
+/* Two soft radial glows, transcribed verbatim — a white one top-right, a black one bottom-left,
+   both bleeding off the card's own edges rather than sitting inside them. */
+.apx-offercard::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 200%;
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.08), transparent 60%);
+  pointer-events: none;
+}
+.apx-offercard::after {
+  content: "";
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 40%;
+  height: 160%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+.apx-offercard__heading {
+  position: relative;
+  z-index: 1;
+  color: var(--apx-white);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.apx-offercard__sub { position: relative; z-index: 1; color: rgba(255, 255, 255, 0.85); margin-bottom: 12px; }
+
+.apx-offercard__badge {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--apx-r-pill);
+  background-color: rgba(255, 255, 255, 0.15);
+  margin-bottom: 12px;
+}
+.apx-offercard__badge span {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.apx-btn--offer {
+  position: relative;
+  z-index: 1;
+  padding: 18px 44px;
+  background-color: var(--apx-white);
+  border-color: transparent;
+  color: var(--apx-brand);
+  font-family: var(--apx-font-head);
+  font-size: 16px;
+  font-weight: 700;
+  transition: all var(--apx-dur) ease-in-out;
+}
+/* No colour change on hover — a shadow deepens and the button lifts, and that is the whole gesture. */
+.apx-btn--offer:hover { box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.15); transform: translateY(-2px); }
+
+/* 🔴 `display:flex`, matching the reference — found 2026-08-22 because the new offerglobal band maps
+   this role as `both` where every existing offer band maps it as `text`, and `text` never compares
+   display. The live link has been a flex container on every page since it was built and the redraw
+   has been rendering it inline-turned-block. A stricter role on one band exposed a difference five
+   bands had been passing over. */
+.apx-offercard__phone {
+  display: flex;
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  text-decoration-line: none;
+}
+.apx-offercard__phone:hover { color: rgba(255, 255, 255, 0.7); text-decoration-line: underline; }
+
+/* ── offer CTA, services-index variant ──────────────────────────────────────
+   Same `.apx-offercard` card, four measured differences off :8098's own
+   /services/ (post 308, node 197-203): a full-width card with no justify-
+   content of its own (the OUTER band centres it), a row not column badge,
+   and a CTA in the body font at the base size/padding rather than the head
+   font's larger one home/about's button uses. */
+.apx-offercard--full { width: 100% !important; justify-content: normal; }
+.apx-offercard--full .apx-offercard__sub { line-height: 1.6; }
+.apx-offercard__badge--row { flex-direction: row; flex-wrap: nowrap; align-items: center; }
+.apx-offercard__badge--row span { text-align: center; }
+.apx-btn--offer-services {
+  font-family: var(--apx-font-body);
+  font-size: var(--apx-base);
+  padding: 14px 24px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================================
+   BAND — footer
+   No apx-reveal (the reference does not carry it here). Two columns at the
+   band's own split (52.67/47.33, same "minus half the gap" formula as every
+   other multi-column band), the second column itself a 2-up grid.
+   ============================================================================ */
+[data-sd="footer.inner"] { padding-bottom: 0; }
+
+.apx-footer__cols { display: flex; flex-direction: row; gap: 30px; width: 100%; }
+/* The footer's own column gap is 30px, half of which (15px) is what the two-column formula
+   subtracts -- a different gap from the 80px used elsewhere on this page, so a different half. */
+.apx-footer__browsecol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 0 0 calc(52.67% - 15px);
+  min-width: 0;
+}
+.apx-footer__linkscol {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  flex: 0 0 calc(47.33% - 15px);
+  min-width: 0;
+}
+
+.apx-footer__logo { width: 180px; height: auto; }
+.apx-footer__tagline { width: 320px; max-width: 100%; font-size: 14px; line-height: 1.75; margin-top: 16px; }
+.apx-footer__findus {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.apx-footer__nap { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.apx-footer__nap-city { color: var(--apx-snow); font-family: var(--apx-font-body); font-size: 16px; font-weight: 700; }
+.apx-footer__nap-street { color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 15px; line-height: 1.6; }
+
+.apx-btn--footer-phone {
+  border-color: var(--apx-ember-glow);
+  background-color: transparent;
+  color: var(--apx-ember-glow);
+  border-radius: 6px;
+  font-family: var(--apx-font-body);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--footer-phone:hover { background-color: var(--apx-ember-glow); color: var(--apx-white); }
+
+.apx-footer__hours { color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 14px; }
+
+.apx-footer__linkgroup__title {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.apx-footer__linklist { list-style: none; margin: 0; padding: 0; }
+.apx-footer__linklist li { margin: 0; font-size: 14px; line-height: 1.9; }
+.apx-footer__linklist a { color: var(--apx-mist); text-decoration: none; }
+.apx-footer__linklist a.apx-footer__linklist--more { color: var(--apx-ember-glow); }
+
+.apx-footer__bottomrow {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-block: 20px;
+  margin-top: 24px;
+}
+.apx-footer__copy { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 10px; }
+/* .bde-text-link's own universal default is display:flex + underline -- unlike the legal-row and
+   nav links (which explicitly turn it off), this ONE link carries no override, so it keeps it. */
+/* Breakdance's GENERIC bare `a:hover{color:brand}` default is what actually paints this link on
+   hover -- it has no class-scoped override of its own, unlike every other link on the page, which
+   is why this is the one place that rule is reproduced (scoped, not global: a page-wide `a:hover`
+   would leak onto the nav, the ghost buttons and the social icons, all of which have their OWN
+   hover treatment and none of which change colour this way -- checked directly, not assumed). */
+.apx-footer__copy a { display: flex; text-decoration-line: underline; }
+.apx-footer__copy a:hover { color: var(--apx-brand); border-color: var(--apx-brand); }
+.apx-footer__copy > * { font-size: 13px; }
+.apx-footer__copy a { color: var(--apx-mist); }
+/* The reference renders BOTH a split "© 2026 / clinic name" pair AND a full sentence copyright
+   right next to it — a genuine duplicate in the served page, not a responsive swap (nothing in
+   its CSS hides either at any breakpoint). Reproduced as served rather than silently corrected. */
+.apx-footer__copyfull { font-size: 13px; color: var(--apx-mist); }
+
+.apx-social { max-width: 100%; width: max-content; display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: flex-start; gap: 10px; }
+.apx-social__icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  padding: 9px;
+  border-top-color: var(--apx-brand);
+  background-color: color-mix(in srgb, var(--apx-cloud) 10%, transparent);
+  transition: background-color var(--apx-dur) ease, transform var(--apx-dur) ease, opacity var(--apx-dur) ease;
+}
+.apx-social__icon svg { width: 16px; height: 16px; fill: var(--apx-cloud); transition: fill var(--apx-dur) ease; }
+.apx-social__icon:hover { background-color: var(--apx-brand); }
+.apx-social__icon:hover svg { fill: var(--apx-white); }
+
+.apx-footer__legalrow {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding-block: 20px;
+  margin-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.078);
+}
+.apx-footer__legallinks { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 20px; }
+/* No transition at all -- the reference's colour flip on hover is instant, unlike the nav link
+   underline elsewhere on the page. Checked, not assumed the same as its neighbours. */
+.apx-footer__legallinks a { display: flex; color: var(--apx-mist); font-size: 13px; text-decoration-line: none; }
+.apx-footer__legallinks a:hover { color: var(--apx-ember-glow); }
+
+@media (max-width: 1119px) {
+  .apx-footer__cols { flex-direction: column; }
+  .apx-footer__browsecol, .apx-footer__linkscol { flex: 0 0 auto; width: 100%; }
+}
+@media (max-width: 767px) {
+  .apx-footer__linkscol { grid-template-columns: 1fr; }
+  .apx-footer__bottomrow, .apx-footer__legalrow { flex-direction: column; }
+  .apx-footer__linklist a[data-sd] {}
+  .apx-footer__legallinks { flex-direction: column; align-items: center; }
+}
+
+/* ============================================================================
+   ABOUT ARCHETYPE — bands that only exist on /about/ (session 4, 2026-08-20)
+   ============================================================================ */
+
+/* ── BAND — page hero ─────────────────────────────────────────────────────
+   Reuses the eyebrow + .apx-dual--section preset every other section header
+   uses, on an <h1>. NOT the .apx-secthead 590px measure: the reference's own
+   three nodes here sit unwrapped in the section-container, so the sub-line
+   wraps at its own natural width rather than a fixed 590px column — measured
+   off :8098 (text-279-104 has no width rule, computed rectW 645.99px, not
+   590). Every internal page's title band is meant to reuse this, which is
+   why it is named for the pattern and not for "about" specifically. */
+.apx-pagehero { background-color: var(--apx-snow); }
+.apx-pagehero__inner {
+  align-items: center;
+  text-align: center;
+  padding-top: clamp(120px, 12vw, 160px);
+  padding-bottom: clamp(64px, 8vw, 96px);
+}
+.apx-pagehero__sub { color: var(--apx-steel); }
+
+/* ── BAND — about team ─────────────────────────────────────────────────────
+   A different card from home's .apx-teamcard, not a reskin of it: no card
+   background or shadow, left-aligned instead of centred, one chip PER
+   credential instead of one pill for the whole string, and a per-card
+   "Read full profile" link the home grid does not carry. Same grid mechanic
+   (CSS grid, --apx-cols, uniform gap) as .apx-teamgrid/.apx-cardgrid, so
+   only the card body is new, not the layout family. */
+.apx-aboutteam {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(var(--apx-cols, 3), minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+.apx-aboutcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 14px;
+  background-color: var(--apx-white);
+  box-sizing: border-box;
+}
+.apx-aboutcard__photo { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+.apx-aboutcard__body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 20px 22px 22px; }
+.apx-aboutcard__name { font-size: 20px; font-weight: 700; margin-bottom: 2px; color: var(--apx-headings); }
+.apx-aboutcard__role { font-size: 15px; color: var(--apx-steel); }
+.apx-aboutcard__creds { display: flex; flex-direction: row; align-items: flex-start; gap: 6px; margin-top: 6px; }
+.apx-aboutcard__chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 3px 9px 4px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  background-color: transparent;
+  color: var(--apx-mist);
+}
+.apx-aboutcard__chip span { color: var(--apx-steel); font-size: 13px; font-weight: 600; }
+/* `overflow: hidden` — same Breakdance button-atom default `.apx-btn` carries (2026-08-24). */
+.apx-aboutcard__link {
+  margin-top: 14px;
+  overflow: hidden;
+  padding: 14px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  border-radius: 6px;
+  border: 1px solid var(--apx-brand);
+  background-color: transparent;
+  color: var(--apx-brand);
+  font-family: var(--apx-font-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 14px;
+  text-align: center;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-aboutcard__link:hover { background-color: var(--apx-brand); color: var(--apx-white); }
+
+@media (max-width: 1023px) { .apx-aboutteam { --apx-cols: 2; } }
+@media (max-width: 767px) { .apx-aboutteam { --apx-cols: 1; } }
+
+/* ── BAND — story ─────────────────────────────────────────────────────────
+   Two plain flex children sharing an 80px row gap, NOT BD's native Columns
+   element — so the two-column formula in SOLVED.md (percent minus half the
+   gap) does not apply here. Both widths are simple flex-shrink: 57%+43% of
+   the row overflows by exactly one gap, so the browser distributes the
+   shrink proportionally. Reproduced directly with calc() so the arithmetic
+   is explicit rather than relying on default flex-shrink behaviour lining
+   up the same way on both builds. */
+.apx-story__row { display: flex; flex-direction: row; align-items: flex-start; gap: 80px; }
+/* display/flex-direction/align-items here are the div baseline again (SOLVED.md #1), not a
+   layout decision — this column is a plain block flow and the ghost values do nothing visible. */
+.apx-story__col { display: flex; flex-direction: column; align-items: flex-start; width: calc((100% - 80px) * 0.57); }
+.apx-story__text { font-size: var(--apx-base); line-height: var(--apx-lh-body); color: var(--apx-steel); }
+
+.apx-story__side {
+  width: calc((100% - 80px) * 0.43);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  position: sticky;
+  top: 100px;
+}
+
+.apx-storystatcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 32px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-snow);
+}
+.apx-storystatcard__label {
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.apx-statrow {
+  padding-block: 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.apx-statrow__icon {
+  display: flex;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--apx-teal);
+  background-color: rgba(13, 148, 136, 0.08);
+}
+.apx-statrow__icon svg { width: 18px; height: 18px; fill: var(--apx-teal); }
+.apx-statrow__copy { display: flex; flex-direction: column; }
+.apx-statrow__value { color: var(--apx-headings); font-family: var(--apx-font-head); font-weight: 600; font-size: var(--apx-base); }
+.apx-statrow__label { font-size: 13px; color: var(--apx-steel); }
+
+.apx-statdivider { height: 1px; border-top: 1px solid var(--apx-cloud); }
+
+.apx-storycta {
+  width: 100%;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background-color: var(--apx-ink);
+}
+.apx-storycta__heading { color: var(--apx-white); font-family: var(--apx-font-head); font-size: clamp(16px, 14.43px + 0.435vw, 20px); font-weight: 700; margin-bottom: 8px; }
+.apx-storycta__sub { color: var(--apx-steel); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+.apx-storycta__phone {
+  display: flex;
+  margin-top: 20px;
+  color: var(--apx-mist);
+  font-family: var(--apx-font-head);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration-line: none;
+}
+.apx-storycta__phone:hover { color: var(--apx-snow); }
+
+/* A third button preset, distinct from both .apx-btn--primary (hero's, DM Sans/700) and
+   .apx-btn--native (Outfit/700): this one is Outfit at weight 600. Three genuinely different
+   presets in the reference, not one reused three ways -- checked per-button, not assumed. */
+.apx-btn--storycta {
+  padding: 14px 28px;
+  background-color: var(--apx-brand);
+  border-color: transparent;
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--storycta:hover { background-color: var(--apx-brand-hover); color: var(--apx-white); }
+
+@media (max-width: 1023px) {
+  .apx-story__row { flex-direction: column; gap: 40px; }
+  .apx-story__col, .apx-story__side { width: 100%; }
+  .apx-story__side { position: static; }
+}
+
+/* ── BAND — services index (page hero + card grid) ──────────────────────────
+   The /services/ page-hero section is NOT a plain reuse of .apx-pagehero: the
+   reference wraps its eyebrow/h1/sub in a second box (max-width 760, margin-
+   bottom 56, its own centring) that /about/'s pagehero never has, and its
+   section-level padding is a flat 140/100 rather than the clamp() /about/
+   uses -- measured off :8098's own served CSS, not assumed from the shared
+   name. `.apx-pagehero--flat` overrides just the padding; `__content` is the
+   extra box. */
+.apx-pagehero--flat .apx-pagehero__inner { padding-top: 140px; padding-bottom: 100px; justify-content: center; }
+.apx-pagehero--flat .apx-eyebrow { font-family: var(--apx-font-body); font-weight: 700; margin-bottom: 14px; }
+.apx-pagehero--flat .apx-pagehero__sub { font-size: 19px; line-height: 1.6; }
+.apx-pagehero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 760px;
+  margin-bottom: 56px;
+}
+
+/* A third card family, not a reskin of .apx-card (home) or .apx-condcard: its
+   own border/radius/background (a hairline ink-tinted border, not the flat
+   --apx-cloud one), its own body padding (24/26/26/26, not a uniform 24),
+   and an outline button CTA in place of a text link -- all measured off
+   :8098's /services/ post-308.css, not guessed from the home card. */
+.apx-svcgrid {
+  display: grid;
+  flex-direction: column;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+}
+@media (max-width: 1023px) { .apx-svcgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px) { .apx-svcgrid { grid-template-columns: 1fr; } }
+
+.apx-svccard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 14px;
+  background-color: var(--apx-white);
+  text-align: left;
+}
+.apx-svccard__img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.apx-svccard__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 24px 26px 26px 26px;
+}
+.apx-svccard__title {
+  font-family: var(--apx-font-head);
+  font-size: clamp(18px, 16.83px + 0.326vw, 21px);
+  margin-bottom: 10px;
+}
+.apx-svccard__blurb { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: 15px; line-height: 1.6; margin-bottom: 16px; }
+/* `overflow: hidden` — same Breakdance button-atom default `.apx-btn` carries (2026-08-24), on a
+   second button family this design has that isn't built off `.apx-btn`. */
+.apx-svccard__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 24px;
+  border: 1px solid var(--apx-brand);
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--apx-brand);
+  text-align: center;
+  font-family: var(--apx-font-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration-line: none;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-svccard__cta:hover { background-color: var(--apx-brand); color: var(--apx-white); }
+/* ⚠️ NOT a shared-class fix -- the first attempt put this straight on `.apx-svccard`/`__cta`
+   and the full-suite run caught it regressing services-index/conditions-index (post 296/308):
+   THEIR cards genuinely have no hover lift and no chevron at all (measured: live boxShadow/
+   transform both "none" there), while THIS page's related-conditions row (post 314) genuinely
+   does. Same base card, different hover behavior per archetype -- scoped to this grid only. */
+[data-sd="relconditions.grid"] .apx-svccard { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+[data-sd="relconditions.grid"] .apx-svccard:hover { box-shadow: 0 20px 60px 0 rgba(0, 0, 0, 0.08); transform: translateY(-8px); }
+[data-sd="relconditions.grid"] .apx-svccard__cta { position: relative; }
+[data-sd="relconditions.grid"] .apx-svccard__cta::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -4px;
+  border: 1px solid var(--apx-brand);
+  border-width: 0 1px 1px 0;
+  transform: rotate(-45deg);
+  transition: inherit;
+}
+[data-sd="relconditions.grid"] .apx-svccard__cta:hover::after { border-color: var(--apx-white); }
+
+/* The reference splits this line in two: a plain-text prefix and a
+   separately-styled tel: link, authored as rich text -- NOT one uniformly
+   styled anchor the way home/about's .apx-offercard__phone is. Its own
+   class rather than a modifier on .apx-offercard__phone because the two
+   are structurally different elements (an <a> there, a <p><a> here), and a
+   modifier on the wrong tag would be a false claim of shared markup. */
+.apx-offercard__phoneprefix {
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+}
+.apx-offercard__phonelink {
+  color: var(--apx-white);
+  font-weight: 600;
+  text-decoration-line: underline;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-offercard__phonelink:hover { opacity: 0.7; }
+
+/* ════════════════════════════════════════════════════════════════════════════════════════════
+   CONDITION-SINGLE / SERVICE-SINGLE — shared components
+   Measured off :8098's own served /back-pain/ (post 314), session 8, 2026-08-20. Everything below
+   is new relative to the four archetypes above; nothing here reskins an existing class, and
+   nothing existing was changed to make room for it.
+   ════════════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── the two-column title band: eyebrow/h1/sub/CTA left, a plain unrounded photo right.
+   NOT a `.apx-pagehero` variant -- that family is single-column and text-only on every existing
+   caller (about/services-index/conditions-index); this one is a genuinely different reference box
+   (a row, an image, a button), so it gets its own name rather than a third meaning bolted onto
+   `flat`. */
+.apx-singlehero { background-color: var(--apx-snow); }
+.apx-singlehero__row { display: flex; flex-direction: row; align-items: center; gap: 52px; }
+.apx-singlehero__copy {
+  width: calc((100% - 52px) * 0.53971);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.apx-singlehero__eyebrow { font-family: var(--apx-font-body); font-weight: 700; margin-bottom: 14px; }
+/* 🔴 TWO-TONE, AND A DELIBERATE DIVERGENCE FROM THE REFERENCE (John, 2026-08-21, eye pass on the
+   preview). :8098 renders this h1 as one flat ink line — measured, both builds identical before
+   the change. Every OTHER heading on the page is a dual heading (ink/white primary + ember city),
+   so the one that names the page was the odd one out. The span classes are the shared
+   `.apx-dual__primary/__secondary`, so the two tones are the same two tones as everywhere else
+   rather than a third opinion about what the accent colour is. */
+.apx-singlehero__h1 {
+  font-family: var(--apx-font-head);
+  font-size: clamp(32px, 24.6px + 3.09vw, 55px);
+  font-weight: 700;
+  color: var(--apx-headings);
+  margin: 0 0 18px;
+}
+.apx-singlehero__h1 .apx-dual__primary { color: var(--apx-headings); }
+.apx-singlehero__h1 .apx-dual__secondary { color: var(--apx-brand); }
+.apx-singlehero__sub { color: var(--apx-steel); font-size: clamp(17px, 16.2px + 0.33vw, 19px); line-height: 1.6; margin: 0; }
+.apx-singlehero__cta { margin-top: 28px; font-size: 18px; font-weight: 600; line-height: 18px; transition: all 0.2s ease-in-out; }
+.apx-singlehero__media {
+  width: calc((100% - 52px) * 0.46029);
+  aspect-ratio: 510 / 382;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+/* 🔴 THE ROUNDED CORNER LIVES ON A FRAME, NOT ON THE IMAGE. The reference nests
+   media > frame > image, puts `border-radius:14px; overflow:hidden` on the FRAME and leaves the
+   img itself square — so painting the radius onto the img would look right and compute wrong.
+   The redraw had no frame at all and shipped square corners; the gate missed it because the frame
+   node was never mapped. It is now `singlehero.frame`. */
+.apx-singlehero__frame {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  align-items: flex-start;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.apx-singlehero__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 1023px) {
+  .apx-singlehero__row { flex-direction: column; }
+  .apx-singlehero__copy, .apx-singlehero__media { width: 100%; }
+}
+
+/* ── breadcrumb. Plain rich text on the reference (inline-styled runs), not a component with its
+   own record -- reproduced as one class since there is nothing per-client about it. Its own band
+   has NO `.apx-band__inner` padding-block (0/0 on the reference, not the shared band rhythm), so
+   it is its own frame, not the shared class. */
+.apx-breadcrumb-inner { padding-block: 0 !important; align-items: center; justify-content: center; }
+.apx-breadcrumb { font-size: 13px; line-height: 1.6; color: var(--apx-steel); }
+.apx-breadcrumb a { color: var(--apx-steel); text-decoration: none; }
+.apx-breadcrumb__sep { color: var(--apx-steel); padding: 0 8px; }
+.apx-breadcrumb__current { color: var(--apx-headings); font-weight: 600; }
+
+/* ── the content row: long-form body (70%) + sticky sidebar (30%), 80px gap -- the same
+   flex-shrink formula as `.apx-story__row` (SOLVED.md), a different split (this reference is
+   70/30, story's is 57/43), so it is its own rule, not a modifier on story's. */
+.apx-content__row { display: flex; flex-direction: row; align-items: flex-start; gap: 80px; }
+.apx-content__main { display: flex; flex-direction: column; align-items: flex-start; width: calc((100% - 80px) * 0.7); }
+.apx-content__sidebar {
+  width: calc((100% - 80px) * 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  position: sticky;
+  top: 100px;
+}
+@media (max-width: 1023px) {
+  .apx-content__row { flex-direction: column; gap: 40px; }
+  .apx-content__main, .apx-content__sidebar { width: 100%; position: static; }
+}
+
+/* ── the short-answer callout -- a snow card ahead of the prose body, NOT `.apx-storystatcard`
+   (different border, no card padding-block rhythm) and not `.apx-costbox` (no accent border). */
+.apx-answer {
+  max-width: 100%;
+  background-color: var(--apx-snow);
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 14px;
+  padding: 24px 28px 26px 28px;
+  margin: 0 0 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.apx-answer__label {
+  display: block;
+  color: var(--apx-teal);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 14px;
+}
+.apx-answer__text { color: var(--apx-steel); font-size: 18px; line-height: 1.65; }
+
+/* ── the catalog block renderer's own markup (catalog_render.py). Plain prose sizing, matched to
+   post-314's body text (h2/p/bullets), not a second type scale -- these ARE the design's base
+   sizes, just scoped under `.apx-prose` so a related-card blurb elsewhere never inherits them. */
+.apx-prose__lede { color: var(--apx-steel); font-size: 19px; line-height: 1.7; margin-bottom: 18px; }
+.apx-prose__h2 {
+  font-family: var(--apx-font-head);
+  font-size: clamp(28px, 24px + 2.5vw, 44px);
+  font-weight: 700;
+  color: var(--apx-headings);
+  margin: 12px 0 16px;
+}
+.apx-prose__p { color: var(--apx-steel); font-size: 17px; line-height: 1.75; margin-bottom: 18px; }
+.apx-prose__list { color: var(--apx-steel); font-size: 17px; line-height: 1.7; padding-left: 0; margin: 0 0 18px; list-style-position: inside; }
+
+/* ── costbox: the checklist treatment, an ember-bordered card (the one place this design borders
+   a card in the brand colour rather than ink/12% or cloud). */
+.apx-costbox {
+  max-width: 100%;
+  min-height: auto;
+  border: 1px solid var(--apx-brand);
+  border-radius: 14px;
+  padding: 20px 24px 22px 24px;
+  margin: 8px 0 24px;
+  background-color: var(--apx-white);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.apx-costbox__list { color: var(--apx-steel); font-size: 16px; line-height: 1.7; padding-left: 20px; margin: 0; }
+.apx-costbox__note { color: var(--apx-steel); font-size: 14px; line-height: 1.6; margin: 0; }
+
+/* ── citation: the evidence card, snow not white, no border -- the one place a stat is presented
+   as its own bordered-free callout rather than inline in a paragraph. */
+.apx-citebox {
+  max-width: 100%;
+  min-height: auto;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin: 8px 0 26px;
+  background-color: var(--apx-snow);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.apx-citebox__stat { color: var(--apx-steel); font-size: clamp(16px, 15.22px + 0.22vw, 18px); line-height: 1.6; margin: 0; }
+.apx-citebox__stat strong { font-weight: 700; }
+.apx-citebox__source { color: var(--apx-steel); font-size: 13px; line-height: 1.5; margin: 0; }
+.apx-citebox__source a { color: var(--apx-brand); text-decoration: underline; }
+
+/* ── the sidebar's stat card. Same card chrome as `.apx-storystatcard` (padding32/border-cloud/
+   radius16/bg-snow/label), but the row layout is NOT `.apx-statrow` (icon-left, full-width rows
+   with dividers) -- here all four stats sit in one compact icon-on-top strip, four across, no
+   dividers. Two different presets sharing one data shape (star/family/calendar/lightning, same
+   as `band_story`'s stat_rows), not one component rendered two ways. */
+.apx-sidebarstats {
+  width: 100%;
+  max-width: 100%;
+  padding: 32px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-snow);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.apx-sidebarstats__label {
+  color: var(--apx-headings);
+  font-family: var(--apx-font-body);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+/* Four stacked icon-left/body-right rows, NOT a compact icon-top-center strip -- measured off
+   :8098 directly (each row is its own `bde-div`, no shared wrapper, no divider between them;
+   the "years" row genuinely has no second line). Same DATA as `band_story`'s stat_rows, its own
+   icon-chip numbers (38px/radius10/teal-12%, not `.apx-statrow__icon`'s 36px/radius8/teal-8%). */
+.apx-sidebarstats__list { width: 100%; display: flex; flex-direction: column; }
+.apx-sidebarstats__row { width: 100%; display: flex; flex-direction: row; align-items: center; gap: 14px; padding-block: 14px; }
+.apx-sidebarstats__icon {
+  flex: none;
+  flex-direction: column;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  border-radius: 10px;
+  border-color: var(--apx-teal);
+  /* `color`, not only `border-color`: the glyph inside resolves its own currentColor-derived
+     properties from this, and the reference sets teal here. Setting `fill` on the svg alone left
+     the svg's currentColor at the inherited mist, which the gate caught the moment the svg itself
+     got a role. */
+  color: var(--apx-teal);
+  background-color: color-mix(in srgb, var(--apx-teal) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 🔴 A DEFECT NOT REPRODUCED (John, 2026-08-21). The reference pins every one of these glyphs to
+   a 17x17 SQUARE regardless of its viewBox, so the two-person "patients helped" icon (640x512,
+   a 1.25:1 box) is squashed 20% narrower than it was drawn — measured identical on both builds
+   before this change, so it is the reference's defect faithfully inherited, not a redraw slip.
+   `height` stays 17px so the row rhythm is unchanged and `width:auto` lets each glyph keep the
+   proportions it was drawn at. Declared in band-map.json on content.stat1icon. */
+/* ⚠️ `max-width:none` is load-bearing. The first attempt kept `max-width:17px`, which clamped the
+   1.25:1 glyph straight back to 17px and re-squashed it — measured, not assumed: the re-check
+   still showed 17x17. A constraint that silently undoes the fix beside it. */
+.apx-sidebarstats__icon svg { width: auto; height: 17px; max-width: none; fill: var(--apx-teal); }
+.apx-sidebarstats__body { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.apx-sidebarstats__value { color: var(--apx-headings); font-family: var(--apx-font-body); font-size: 15px; font-weight: 700; text-align: left; }
+.apx-sidebarstats__label-sm { color: var(--apx-steel); font-size: 13px; line-height: 1.5; text-align: left; }
+
+/* ── the sidebar's CTA card. Close kin to `.apx-storycta` (same ink card, same centred column) but
+   its own measured numbers -- radius 20 not 16, asymmetric 32/28 padding not uniform 32, a
+   fixed 22px snow heading not the clamp(16,20) white one, a mist not steel sub. A modifier on
+   `.apx-storycta` would either drag those numbers onto the about page or fork the class in place;
+   this is its own name instead. */
+.apx-contentcta {
+  width: 100%;
+  max-width: 100%;
+  padding: 32px 28px;
+  border-top: 1px solid color(srgb 1 1 1 / 0.1);
+  border-bottom: 1px solid color(srgb 1 1 1 / 0.1);
+  border-radius: 20px;
+  background-color: var(--apx-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.apx-contentcta__heading { color: var(--apx-snow); font-family: var(--apx-font-head); font-size: 22px; font-weight: 700; margin: 0; }
+.apx-contentcta__sub { color: var(--apx-mist); font-size: 15px; line-height: 1.6; margin: 0 0 12px; }
+.apx-contentcta__cta { font-size: 18px; line-height: 18px; }
+.apx-contentcta__phone { display: block; margin-top: 20px; color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 14px; font-weight: 400; line-height: 1.6; text-decoration: none; }
+.apx-contentcta__cta { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.apx-contentcta__cta:hover { transform: translateY(-2px); }
+
+/* ── related-services row: text-only cards (no image), inside the SAME `.apx-svcgrid` 3-col grid
+   the catalog card families already use -- a new card, not a new grid. Ghost-bordered button
+   (steel, not brand), which is what tells it apart from `.apx-svccard__cta`'s brand-coloured one. */
+.apx-relcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 100%;
+  padding: 24px 26px 26px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 14px;
+  background-color: var(--apx-white);
+}
+.apx-relcard__title { font-family: var(--apx-font-head); font-size: 20px; font-weight: 700; color: var(--apx-headings); margin: 0; }
+.apx-relcard__text { color: var(--apx-steel); font-size: 15px; line-height: 1.6; margin: 0; }
+/* `overflow: hidden` — same Breakdance button-atom default `.apx-btn` carries (2026-08-24). */
+.apx-relcard__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 24px;
+  border: 1px solid var(--apx-steel);
+  border-radius: var(--apx-r-pill);
+  color: var(--apx-steel);
+  font-family: var(--apx-font-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-relcard__cta:hover { background-color: var(--apx-steel); color: var(--apx-white); }
+
+/* ── section-header size overrides for condition/service-single's smaller sub-section headers.
+   `.apx-dual--section`'s shared clamp(32,4vw,52)/line-height:1.1 is correct for every OTHER
+   caller (story, why, trust...) -- these three Breakdance instances (post 314, nodes 175/194/
+   209) carry their OWN fixed/clamp override in the Builder rather than inheriting it, measured
+   directly off post-314.css and the live computed line-height, not assumed from the shared
+   preset. Scoped so nothing else regresses. */
+[data-sd="relservices.h2"] {
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.92px;
+  margin-bottom: 14px;
+}
+[data-sd="faqsingle.h2"] {
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.92px;
+  margin-bottom: 12px;
+}
+[data-sd="relconditions.h2"] {
+  font-size: 43.9453px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.878906px;
+  margin-bottom: 24px;
+}
+
+/* ── the same `.apx-svccard` family, this specific served instance (post 314): its own smaller
+   clamp max (20px not 21px) and tighter title margin (4px not 10px) -- read off post-314.css
+   directly, not the shared conditions-index/services-index numbers. Scoped to this grid only. */
+[data-sd="relconditions.grid"] .apx-svccard__title { font-size: clamp(18px, 17.22px + 0.217vw, 20px); margin-bottom: 4px; }
+[data-sd="relconditions.grid"] .apx-svccard__blurb { margin-bottom: 0; }
+
+/* ── this page's own offer-band instance serves snow, not `.apx-band--white`'s white -- the
+   same `offer_conditions`/`variant='services'` markup services-index/conditions-index already
+   pass with white, so this is the page-specific exception, not a change to that shared default. */
+.apx-page-condition-single #contact.apx-band--white,
+.apx-page-service-single #contact.apx-band--white { background-color: var(--apx-snow); }
+
+/* ── relservices' eyebrow is body-font (DM Sans), not the `.apx-eyebrow` default's head-font
+   (Outfit) -- same override shape as `.apx-pagehero--flat .apx-eyebrow` already uses elsewhere
+   in this file, a different font/weight, not a fourth one invented for its own sake. */
+[data-sd="relservices.eyebrow"] { font-family: var(--apx-font-body); margin-bottom: 14px; }
+[data-sd="relservices.sub"] { line-height: 1.6; }
+
+/* ── faqsingle: a genuine two-column band (corrected from an earlier single-column read -- see
+   band_faq_single()'s docstring), 40/60 not band_faq's own 42/58 -- its own ratio, read off the
+   served rects, not a modifier on the shared `.apx-faq__sidebar`/`__accordioncol` percentages. */
+.apx-faqsingle__cols { gap: 80px; align-items: flex-start; }
+.apx-faqsingle__sidebar { flex-basis: calc(40% - 32px); justify-content: normal; position: sticky; top: 120px; }
+.apx-faqsingle__accordioncol { flex-basis: calc(60% - 48px); justify-content: normal; }
+[data-sd="faqsingle.eyebrow"] { font-family: var(--apx-font-body); margin-bottom: 12px; }
+[data-sd="faqsingle.sub"] { font-size: 15px; line-height: 1.7; margin-bottom: 0; width: auto; }
+/* 🔴 THE SINGLE-PAGE FAQ IS A DIFFERENT WIDGET FROM THE HOME BAND'S, AND SESSION 8 REUSED THE
+   WRONG ONE. Measured on both builds: the HOME accordion really is a bordered GROUP
+   (`bde-accordion--bordered`, 2px edge, 8px radius, items flush with no border and no gap) and the
+   redraw matches it exactly — that one is correct and is untouched here. The catalog page's is a
+   `bde-frequently-asked-questions`: NO group border, NO group radius, a 12px gap, and each item
+   carrying its own 1px border and 12px radius. Session 8 bolted per-item borders onto the bordered
+   group and left the group edge and the zero gap in place, then WAIVED the 4px width difference
+   that fell out of it. That waiver was the tell, and it is now removed — the width matches.
+   John saw it as "a border around the entire accordions" and "they look like they're touching",
+   which is exactly what it was. */
+.apx-faqlist { border: 0; border-radius: 0; gap: 12px; }
+[data-sd="faqsingle.accordioncol"] .apx-accordion__item {
+  background-color: var(--apx-white);
+  border-radius: 12px;
+  border: 1px solid var(--apx-cloud);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 🔴 JOHN'S EYE PASS, 2026-08-24 — a declared deviation. The reference computes `visible` here too
+     (measured on both), so the button's hover fill paints its own square corners past the item's
+     12px radius and the tint sits proud of the card. He saw it on /services/ and /conditions/:
+     "where it goes outside of the accordion". Same ruling he gave the home accordion on 08-22.
+     See WAIVERS.md. */
+  overflow: hidden;
+}
+/* 🔴 AND A REAL DEFECT UNDERNEATH IT, WHICH IS WHY THE CORNERS LOOKED DOUBLED. The HOME accordion's
+   `:first-child`/`:last-child` rules give their button an 8px top/bottom radius, correct for a
+   bordered GROUP whose items are flush. They were leaking into the catalog family, so this button
+   computed `8px 8px 0 0` inside a 12px-rounded item where the reference computes `0px` — two
+   different corner radii stacked, which is the mismatch in the screenshot rather than the overflow
+   alone. Measured, not inferred. ⚠️ INVISIBLE TO THE GATE: `faqsingle.qbutton` was kind `text`, and
+   `text` does not compare `borderRadius`. Promoted to `both` in band-map.json so it is measured now. */
+[data-sd="faqsingle.accordioncol"] .apx-accordion__item:first-child .apx-accordion__button,
+[data-sd="faqsingle.accordioncol"] .apx-accordion__item:last-child .apx-accordion__button {
+  border-radius: 0;
+}
+[data-sd="faqsingle.accordioncol"] .apx-accordion__item:hover {
+  border-color: color-mix(in srgb, var(--apx-brand) 30%, transparent);
+}
+/* 🔴 THE TYPE BELONGS ON THE BUTTON, NOT THE INNER SPAN, and that was hidden by a mispaired role.
+   The reference's `.bde-faq__question` IS the clickable row and carries the title type on itself;
+   the redraw wraps its button in an <h3>, so anything not declared on the button inherits h3
+   typography (35.16px). While `faqsingle.qbutton` pointed at the inner `.apx-accordion__title`
+   span, the comparison read the span's declared type and matched — the BUTTON, which is what the
+   reference styles, was never measured. Session 9 then waived a hover difference on this role with
+   an explanation ("the title SPAN's own backgroundColor does not pick up the fill") that was a
+   description of the mispairing. Role repointed at the button, waiver dropped, type moved here. */
+[data-sd="faqsingle.accordioncol"] .apx-accordion__button,
+[data-sd="faqsingle.accordioncol"] .apx-accordion__title {
+  font-family: var(--apx-font-head);
+  font-size: 22.5px;
+  font-weight: 400;
+  line-height: normal;
+  text-align: center;
+  background-color: transparent;
+  transition: all 0s ease;
+}
+[data-sd="faqsingle.accordioncol"] .apx-accordion__button {
+  display: inline-flex;
+  gap: normal;
+  padding: 20px 24px;
+}
+[data-sd="faqsingle.accordioncol"] .apx-accordion__button:hover .apx-accordion__title {
+  background-color: var(--apx-snow);
+}
+[data-sd="faqsingle.accordioncol"] .apx-accordion__button {
+  transition: all 0s ease;
+}
+[data-sd="faqsingle.accordioncol"] .apx-accordion__button:hover {
+  background-color: var(--apx-snow);
+}
+
+
+/* ============================================================================
+   SERVICE-SINGLE — the five shapes condition-single never needed
+   ----------------------------------------------------------------------------
+   Session 9. Every number here was read off :8098's own post-354.css, not
+   carried over from a same-sounding family. Where a family DID already exist
+   and genuinely matched (crumb, content, faq-single, offer, relconditions) it
+   is reused untouched and appears nowhere in this section — those four were
+   CSS-diffed against post-314 rule for rule and came back identical, which is
+   why they are reuse rather than a second copy.
+   ============================================================================ */
+
+/* ── singlehero, two-button variant ──────────────────────────────────────────
+   ⚠️ ADDITIVE ONLY. condition-single's hero declares node 109 as
+   `flex-direction:column; align-items:start` around ONE button; service-single
+   declares the same node as a `row` with `gap:12px` around two. Both are live
+   and both are measured, so the row is a separate class the emitter opts into
+   when a second CTA exists, NOT a change to `.apx-singlehero__cta` — editing
+   that would have moved back-pain, which already passes. */
+.apx-singlehero__btnrow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  /* `start`, not `flex-start` -- the reference writes `justify-content:start` and Chrome computes
+     the two to different strings even though they lay out identically here. */
+  justify-content: start;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+/* 🔴 ZERO THE PRIMARY'S OWN MARGIN INSIDE THE ROW. `.apx-singlehero__cta` carries margin-top:28px
+   for the ONE-button layout condition-single uses, where the wrapper is a column. Inside this row
+   the wrapper already supplies margin-top:26px and `align-items:center` then distributes the
+   button's own 28px as a 14px offset — so the two buttons sat 14px apart vertically. Measured:
+   :8098 has both at the same y, the redraw did not. John caught it by eye; no role covered it,
+   which is why `singlehero.btnrow` and `singlehero.cta2` are now mapped. */
+.apx-singlehero__btnrow .apx-singlehero__cta { margin-top: 0; }
+.apx-singlehero__btnrow > a { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.apx-singlehero__btnrow > a:hover { transform: translateY(-2px); }
+
+/* The steel outline pill. Not `.apx-btn--ghost` (that one is white-on-dark and
+   washes rather than fills) and not `.apx-btn--ghost-outline`: this one sits on
+   the snow hero, draws in steel, and DOES fill solid steel on hover — which is
+   what the reference declares on node 111, so it is reproduced rather than
+   argued with. */
+.apx-btn--outline-steel {
+  background-color: transparent;
+  border-color: var(--apx-steel);
+  color: var(--apx-steel);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+}
+/* 🔴 IT HOVERS TO BRAND, NOT TO ITS OWN EDGE COLOUR. The button's own
+   `--bde-button-custom-*-hover` variables say steel, and building the hover from those alone is
+   what shipped here first. The reference ALSO carries a more specific row rule --
+   `.bde-div-354-109 > *:nth-child(2) a:hover { background: ember; border-color: ember }` -- which
+   wins. Both rules were read in the same session and only the losing one made it into the CSS.
+   Caught by the behaviour gate, which is the only check that would ever have seen it: at rest the
+   two builds were byte-identical. */
+.apx-btn--outline-steel:hover {
+  background-color: var(--apx-brand);
+  border-color: var(--apx-brand);
+  color: var(--apx-white);
+}
+.apx-singlehero__btnrow .apx-btn--primary { font-size: 18px; font-weight: 600; line-height: 18px; }
+
+/* ── the centred section head used by benefits and process ───────────────────
+   NOT `.apx-secthead`. That one is a fixed 590px flex column with
+   `align-items:center`; these two reference nodes (193, 215) are `width:100%`
+   with a `max-width` and `margin-inline:auto`, no align-items at all, and their
+   children carry `width:100%; text-align:center` individually. Same look, a
+   different box — and the difference shows the moment a child is narrower than
+   its parent. Two measures, so two modifiers rather than one averaged number. */
+.apx-cshead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin-inline: auto;
+  text-align: center;
+}
+.apx-cshead--w700 { max-width: 700px; }
+.apx-cshead--w620 { max-width: 620px; }
+/* The eyebrow's colour is BAND-specific on the reference: teal-light on the ink benefits band,
+   plain teal on the white process band. One averaged colour would have been wrong on both. */
+.apx-band--dark .apx-cshead__eyebrow { color: var(--apx-teal-light); }
+.apx-cshead__eyebrow {
+  color: var(--apx-teal);
+  width: 100%;
+  text-align: center;
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.56px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.apx-cshead__h2 {
+  margin-bottom: 12px;
+  font-family: var(--apx-font-head);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: var(--apx-ls-head);
+}
+.apx-cshead__h2 .apx-dual__primary { color: var(--apx-headings); }
+.apx-band--dark .apx-cshead__h2 .apx-dual__primary { color: var(--apx-white); }
+.apx-cshead__h2 .apx-dual__secondary { color: var(--apx-brand); }
+/* Same story as the eyebrow: steel on a light band, mist on the ink one. */
+.apx-band--dark .apx-cshead__sub { color: var(--apx-mist); }
+.apx-cshead__sub {
+  color: var(--apx-steel);
+  width: 100%;
+  text-align: center;
+  font-family: var(--apx-font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* ── service area ────────────────────────────────────────────────────────────
+   58/42 split, gap 48. The declared percentages are of the FULL row width, so
+   with a 48px gap both columns overflow and flex-shrink pulls them back
+   proportionally — `calc((100% - 48px) * ratio)` is that resolved arithmetic,
+   the same formula `.apx-singlehero__row` already uses.
+   ⚠️ The reference writes `align-items:top`, which is not a value `align-items`
+   accepts, so it computes `normal`. Declaring nothing here is the faithful
+   reproduction; declaring `flex-start` would NOT be. */
+.apx-area__row { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 48px; }
+.apx-area__copy { width: calc((100% - 48px) * 0.58); display: flex; flex-direction: column; align-items: flex-start; }
+.apx-area__aside { width: calc((100% - 48px) * 0.42); display: flex; flex-direction: column; align-items: flex-start; }
+.apx-area__eyebrow {
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--apx-teal);
+  margin-bottom: 12px;
+}
+.apx-area__prose { width: 640px; max-width: 100%; }
+.apx-area__prose p { color: var(--apx-steel); font-size: 15px; line-height: 1.8; margin: 0; }
+.apx-area__prose p a {
+  color: var(--apx-teal);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-area__prose p a:hover { color: var(--apx-brand); }
+.apx-area__h3 {
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: 35px;
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+/* The town chips. NOT `.apx-townpill` — measured against it and every number
+   differs: 9/12 padding not 10/16, a 5px dot not 6px, a 13px label not 14px, an
+   8px grid gap not 10px, and the dot is a `::before` here where the home band
+   builds it as its own div. Reproduced as a pseudo so the dot-to-label distance
+   (the 8px gap PLUS the dot's own 8px margin) lands at the reference's 16px. */
+.apx-areagrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.apx-areachip {
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 8px;
+  background-color: var(--apx-white);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-areachip::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: color-mix(in srgb, var(--apx-brand) 100%, transparent);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  margin-right: 8px;
+}
+.apx-areachip:hover { border-color: color-mix(in srgb, var(--apx-brand) 30%, transparent); }
+.apx-areachip:hover * { color: var(--apx-brand); }
+.apx-areachip__label {
+  color: var(--apx-charcoal);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 500;
+}
+@media (max-width: 1023px) {
+  .apx-area__row { flex-direction: column; }
+  .apx-area__copy, .apx-area__aside { width: 100%; }
+}
+@media (max-width: 767px) { .apx-areagrid { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── benefits grid (on the ink band) ─────────────────────────────────────────
+   A washed white card on ink, 4% ground / 8% edge, lifting to 7%/12% on hover.
+   The icon tile is teal at 12%, and the glyph itself is teal-light. */
+.apx-benefitgrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+.apx-benefitcard {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 36px 32px;
+  border: 1px solid color-mix(in srgb, var(--apx-white) 8%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--apx-white) 4%, transparent);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-benefitcard:hover {
+  background: color-mix(in srgb, var(--apx-white) 7%, transparent);
+  border-color: color-mix(in srgb, var(--apx-white) 12%, transparent);
+  transform: translateY(-4px);
+}
+.apx-benefitcard__icon {
+  width: 48px;
+  min-height: 48px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: color-mix(in srgb, var(--apx-teal) 12%, transparent);
+  color: var(--apx-teal-light);
+  flex-shrink: 0;
+}
+.apx-benefitcard__icon svg { width: 20px; height: 20px; }
+.apx-benefitcard__title {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: 18px;
+  line-height: 1.3;
+  margin: 0 0 10px;
+}
+.apx-benefitcard__text {
+  color: var(--apx-mist);
+  font-family: var(--apx-font-body);
+  font-size: 14px;
+  line-height: 1.7;
+}
+@media (max-width: 1023px) { .apx-benefitgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px)  { .apx-benefitgrid { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── the numbered process ────────────────────────────────────────────────────
+   A vertical rail drawn as a `::before` on the list, inset 28px top and bottom
+   so it starts and ends at the centre of the first and last number badge.
+   ⚠️ The four steps do NOT share one padding. The reference gives the first
+   `0 0 30px`, the middles `30px 0`, and the last `30px 0 0` — collapsing that
+   to a uniform 30px with a gap would move every badge relative to the rail. */
+/* ⚠️ `max-width:100%` and `align-items:flex-start` recur on every box in this section. They are
+   Breakdance's own `.bde-div` defaults, which every live node inherits and no static element does.
+   Declared per class rather than as one blanket rule on `.apx-band__inner *`: a blanket would have
+   reached into ten already-passing bands, which is exactly the shared-class regression DECISIONS
+   2026-08-20 records. */
+.apx-processlist {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+  position: relative;
+}
+.apx-processlist::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  bottom: 28px;
+  left: 27px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--apx-cloud), var(--apx-brand), var(--apx-cloud));
+}
+.apx-processstep {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 32px;
+  position: relative;
+  padding: 30px 0;
+}
+.apx-processstep:first-child { padding-top: 0; }
+.apx-processstep:last-child  { padding-bottom: 0; }
+.apx-processstep__num {
+  width: 56px;
+  max-width: 100%;
+  min-height: 56px;
+  border: 2px solid var(--apx-cloud);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: var(--apx-snow);
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-processstep:hover .apx-processstep__num {
+  background: var(--apx-brand);
+  border-color: var(--apx-brand);
+}
+.apx-processstep:hover .apx-processstep__num * { color: var(--apx-white); }
+.apx-processstep__numtext {
+  text-align: center;
+  color: var(--apx-headings);
+  font-family: var(--apx-font-body);
+  font-size: 20px;
+  font-weight: 700;
+}
+.apx-processstep__body { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.apx-processstep__title {
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: 17px;
+  margin: 0;
+}
+.apx-processstep__text {
+  color: var(--apx-steel);
+  font-family: var(--apx-font-body);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+/* ── the single-page reviews row ─────────────────────────────────────────────
+   NOT `.apx-storycard`. Diffed against the homepage's own card and it is a
+   different component in every number that matters: no oversized quote glyph,
+   no avatar, 24/26 padding not 36, radius 12 not 22, a white card on a snow
+   band where stories is a snow card on white, and no hover at all. */
+.apx-revgrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+.apx-revcard {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px 26px;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 12px;
+  background-color: var(--apx-white);
+}
+/* The star row. NEW — the reference has none on this card (measured: zero SVGs in its review card
+   on both builds before this change), so this is John's 2026-08-21 eye-pass addition, not a
+   reproduction. Colour is the palette's own `--apx-gold`. NOT the trust band's star chip colour --
+   that one is `--apx-chip-3-fg`, an amber bound to that band's chip pair, and borrowing it would
+   tie a review rating to a chip token that has nothing to do with it. Checked before choosing. */
+.apx-revcard__stars { display: flex; flex-direction: row; gap: 3px; margin-bottom: 12px; }
+.apx-revcard__stars svg { width: 16px; height: 16px; fill: var(--apx-gold); display: block; }
+
+.apx-revcard__text {
+  color: var(--apx-headings);
+  font-family: var(--apx-font-body);
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+.apx-revcard__text p { margin: 0; color: var(--apx-steel); }
+.apx-revcard__name {
+  color: var(--apx-brand);
+  font-family: var(--apx-font-body);
+  font-size: 14px;
+  font-weight: 600;
+}
+.apx-reviews__eyebrow {
+  color: var(--apx-teal);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.apx-reviews__h2 { font-family: var(--apx-font-head); margin: 0 0 22px; }
+@media (max-width: 1023px) { .apx-revgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px)  { .apx-revgrid { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── the fixed bottom bar ────────────────────────────────────────────────────
+   Fixed to the viewport bottom on every width, not a mobile-only element: the
+   reference declares `position:fixed` unconditionally and hides only the phone
+   line below 576px. Its inner keeps its own 12/24 padding rather than the band
+   rhythm, so it is its own frame. */
+.apx-stickybar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+  background: var(--apx-ink);
+  border-top: 1px solid color-mix(in srgb, var(--apx-white) 8%, transparent);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+}
+.apx-stickybar__inner {
+  max-width: 1200px;
+  padding: 12px 24px !important;
+  margin-inline: auto;
+  width: 100%;
+}
+.apx-stickybar__row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.apx-stickybar__row a { white-space: nowrap; text-decoration: none; }
+.apx-stickybar__labels { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.apx-stickybar__title {
+  color: var(--apx-snow);
+  font-family: var(--apx-font-body);
+  font-size: 15px;
+  font-weight: 700;
+}
+.apx-stickybar__offer {
+  color: var(--apx-mist);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+}
+.apx-stickybar__actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+}
+.apx-stickybar__phone { font-size: 14px; }
+.apx-stickybar__phone a { color: var(--apx-ember-glow); font-weight: 600; text-decoration: none; }
+/* `all`, and `ease-in-out` -- not `.apx-btn`'s property-set + plain `ease`. Read off the live
+   element's own computed transition, because a button that looks identical at rest can still be
+   the only one on the page that eases differently, and only the behaviour gate ever says so. */
+.apx-stickybar__cta {
+  font-size: 18px;
+  line-height: 18px;
+  font-weight: 700;
+  transition: all var(--apx-dur) ease-in-out;
+}
+@media (max-width: 575px) {
+  .apx-stickybar__inner { padding: 10px 16px !important; }
+  .apx-stickybar__phone { display: none !important; }
+}
+
+/* ============================================================================
+   THE FOUR SMALL PAGES — contact · patient-stories · new-patient-special · blog
+   ----------------------------------------------------------------------------
+   Session 10. Same discipline as every band before them: every number read off
+   :8098's own served CSS or measured on the live element, never carried over
+   from a same-sounding family without a diff first.
+
+   ⚠️ ONE CORRECTION TO THE BRIEF, FOUND BY MEASURING. "Offer and footer are the
+   reuses" is true of /patient-stories/ and /blog/, whose global block is post
+   244 (the offer). /contact/ and /new-patient-special/ carry post 250 instead,
+   which is a REVIEWS block — a different global entirely. Three review-band
+   shapes exist across the design, not one.
+   ============================================================================ */
+
+/* ── page-hero, two more variants ────────────────────────────────────────────
+   /contact/ and /patient-stories/ are the /about/ pagehero with NO eyebrow and
+   a 560px sub measure. The CSS diff against post-279 came back with exactly one
+   extra rule (`width:560px` on the sub) and nothing else — but a CSS diff is
+   blind to STRUCTURE, and the DOM says those two heroes have no eyebrow node at
+   all. Both differences are real and only one of them was visible in the CSS.
+   /blog/'s hero is byte-identical to /about/'s and takes no variant. */
+.apx-pagehero__sub--m560 { width: 560px; max-width: 100%; }
+
+/* ── contact: the 57/43 row ──────────────────────────────────────────────────
+   Declared 57/43 with an 80px gap, so both columns overflow and flex-shrink
+   pulls them back — `calc((100% - 80px) * ratio)` is that arithmetic resolved,
+   the same formula `.apx-singlehero__row` and `.apx-area__row` already use. */
+.apx-contact__row { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 80px; }
+.apx-contact__formcol { width: calc((100% - 80px) * 0.57); display: flex; flex-direction: column; align-items: flex-start; }
+.apx-contact__infocol { width: calc((100% - 80px) * 0.43); display: flex; flex-direction: column; align-items: flex-start; }
+.apx-contact__h2 {
+  margin: 0 0 8px;
+  font-family: var(--apx-font-head);
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+}
+.apx-contact__h2 .apx-dual__primary { color: var(--apx-headings); }
+.apx-contact__h2 .apx-dual__secondary { color: var(--apx-brand); }
+.apx-contact__sub { font-size: 16px; margin-bottom: 32px; color: var(--apx-steel); }
+
+/* The info card, and the icon rows inside it. */
+.apx-infocard {
+  width: 100%;
+  max-width: 100%;
+  padding: 32px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-snow);
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.apx-infocard__h3 {
+  margin: 0 0 20px;
+  font-family: var(--apx-font-head);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--apx-headings);
+}
+.apx-inforows { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+.apx-inforow { width: 100%; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: start; gap: 12px; }
+.apx-inforow__icon { width: 20px; min-height: 20px; display: flex; flex-direction: column; align-items: flex-start; }
+.apx-inforow__icon svg { width: 17px; height: 17px; fill: var(--apx-teal); }
+.apx-inforow__body { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.apx-inforow__line {
+  color: var(--apx-steel);
+  font-family: var(--apx-font-body);
+  font-size: clamp(16px, 15.61px + 0.109vw, 17px);
+  line-height: 1.6;
+}
+/* The phone row is a rich-text link at the design's h5 size in brand, not a plain line. */
+.apx-inforow__phone p { margin: 0; }
+.apx-inforow__phone a {
+  color: var(--apx-brand);
+  font-size: clamp(16px, 14.43px + 0.435vw, 20px);
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+.apx-inforow__note { color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 14px; line-height: 1.6; }
+.apx-inforow__h3 {
+  margin: 0 0 6px;
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+/* ⚠️ 34/66 with a 12px gap and NO shrink compensation — unlike every other split
+   in this design. The reference declares plain percentages on a row whose total
+   is 100%, so the gap pushes the pair 12px past the container and both shrink;
+   `calc((100% - 12px) * n)` is that resolved, same as the others. */
+.apx-hourrow { width: 100%; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 12px; }
+.apx-hourrow__day {
+  width: calc((100% - 12px) * 0.34);
+  color: var(--apx-headings);
+  font-family: var(--apx-font-body);
+  font-size: 15px;
+  font-weight: 700;
+}
+.apx-hourrow__hours {
+  width: calc((100% - 12px) * 0.66);
+  text-align: right;
+  color: var(--apx-steel);
+  font-family: var(--apx-font-body);
+  font-size: 15px;
+}
+.apx-contact__map { width: 100%; max-width: 100%; height: 360px; margin-top: 24px; overflow: hidden; border-radius: 14px; }
+.apx-contact__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+@media (max-width: 767px) {
+  .apx-contact__row { flex-direction: column; align-items: center; gap: 48px; }
+  .apx-contact__formcol, .apx-contact__infocol { width: 100%; }
+}
+
+/* ── the native form ─────────────────────────────────────────────────────────
+   Breakdance's own form widget, reproduced from its COMPUTED values rather than
+   its declared CSS: the widget's look comes from a global stylesheet plus a
+   handful of `--bde-form-*` custom properties, so reading post-275.css alone
+   would have given the overrides and none of the base.
+   A 12-column grid where every field spans all 12 — that is genuinely what the
+   reference computes, not a one-column flex wearing a grid's name.
+   🔴 THE INPUT TEXT COLOUR IS CLOUD (#e2e8f0) ON A WHITE FIELD, which is what
+   the reference computes and is very nearly invisible. Reproduced faithfully
+   and filed against the BD emitter — see designs/apex-PUNCHLIST.md. */
+.apx-form {
+  min-height: 0;
+  border-color: var(--apx-cloud);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+.apx-form__field { grid-column: span 12; position: relative; border-color: var(--apx-cloud); display: flex; flex-direction: column; align-items: flex-start; }
+/* Visually hidden, not removed: the reference keeps the label in the accessibility
+   tree and hides it with a 1x1 box, and a screen reader still reads every field. */
+.apx-form__label {
+  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  margin-bottom: -1px;
+  font-family: var(--apx-font-body);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--apx-cloud);
+}
+.apx-form__required { color: #b91c1c; font-family: var(--apx-font-body); font-size: 18px; font-weight: 500; line-height: 18px; }
+.apx-form__input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 6px;
+  background-color: var(--apx-white);
+  font-family: var(--apx-font-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 18px;
+  /* 🔴 RULED DEVIATION FROM THE REFERENCE — John, 2026-08-19. The reference computes CLOUD
+     (#e2e8f0) here on a white field, so anything a patient types is very nearly invisible; its
+     PLACEHOLDER is mist and legible, which is why the form looks fine until someone types into it.
+     John ruled: readable dark-on-light. Ink is the design's own form register — it is what
+     `--bde-form-label-color` resolves to on the reference. The placeholder below keeps the
+     reference's own mist exactly, so only the typed value changed. See WAIVERS.md. */
+  color: var(--apx-headings);
+  /* The focus border change is animated on the reference. Only the behaviour gate sees this: at
+     rest the two inputs were byte-identical, and the transition is the whole difference between a
+     border that eases to brand and one that snaps. */
+  transition: all 0.3s ease-in-out;
+}
+.apx-form__input::placeholder { color: var(--apx-mist); opacity: 1; }
+.apx-form__input:focus { border-color: var(--apx-brand); background-color: var(--apx-white); outline: none; }
+textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical; }
+.apx-form__footer { grid-column: span 12; border-color: var(--apx-cloud); display: flex; flex-direction: row; align-items: end; justify-content: flex-start; }
+/* `overflow: hidden` — Breakdance's form-builder submit button computes this by default too
+   (measured on :8098's own /contact/), separate CSS family from `.button-atom` but same result. */
+.apx-form__submit {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 14px 28px;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  background-color: var(--apx-brand);
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: 16.8px;
+  font-weight: 600;
+  line-height: 16.8px;
+  letter-spacing: 0.336px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+.apx-form__submit:hover { background-color: var(--apx-brand-hover); }
+
+/* ── the shared reviews block (post 250) and its wrapper section ─────────────
+   The CARD is `.apx-revcard` from session 9, reused after a rule-for-rule diff
+   against post-250.css — same 24/26 padding, 12px radius, white on ink@12%,
+   15.5px/1.65 body. ONE difference, and it is a real one: this instance spaces
+   quote from byline with a 10px flex GAP where the service page uses a 12px
+   margin on the text. Two different numbers doing the same job, so the gap is a
+   modifier rather than a change to the shared card.
+   The byline also carries an em-dash prefix here that the service page has not. */
+.apx-revcard--gap { gap: 10px; }
+.apx-revcard--gap .apx-revcard__text { margin-bottom: 0; }
+.apx-reviewsblock { background-color: var(--apx-snow); border-top: 1px solid var(--apx-cloud); }
+/* ⚠️ A GLOBAL BLOCK NESTS A SECOND SECTION CONTAINER INSIDE THE WRAPPER'S. On the reference the
+   page's own section-container is 1200 and post 250's container sits inside it at 1160, so the grid
+   lands at 1120 rather than 1160. Reproducing the block as one flat band made every width in it
+   40px too wide -- uniformly, which is the tell that a whole box is missing rather than a value
+   being wrong. */
+/* ⚠️ BOTH containers carry the 100px band rhythm, so a global block is 200px of padding deep at the
+   top. Measured, and corrected mid-session from the opposite assumption: moving the padding onto the
+   nested container alone made the OUTER differ by the same 100px the inner had been differing by,
+   which is what "I moved it instead of adding it" looks like. */
+.apx-globalblock__outer { justify-content: normal; }
+.apx-globalblock__inner {
+  padding-block: var(--apx-band-pad);
+  min-height: 0;
+  width: 100%;
+  max-width: var(--apx-maxw);
+  margin-inline: auto;
+  padding-inline: var(--apx-gut);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── blog: the post list ─────────────────────────────────────────────────────
+   A white card on a cloud hairline, the whole card clickable via an `a::after`
+   overlay so the title link covers it without swallowing layout width — the same
+   idiom `.apx-svccard` uses. Lifts 8px on hover, which is deeper than the 4px
+   every other card family in this design uses; measured, not normalised. */
+.apx-bloggrid {
+  display: grid;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+.apx-blogcard {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-white);
+  overflow: hidden;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-blogcard a::after { content: ""; position: absolute; inset: 0; z-index: 3; }
+.apx-blogcard:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); }
+/* `text-align: left` is new here (session 14) — every prior caller (the /blog/ index) sits inside
+   a left-aligned `.apx-bloglist__inner`, so the card never had to say so itself. The post-single
+   related-posts band reuses this SAME card inside a CENTRED header/inner, and `text-align` isn't
+   caught by `align-items: flex-start` — it inherits down through the grid independently, so
+   without this line the title/excerpt/meta would centre under the new caller. */
+.apx-blogcard__body { width: 100%; padding: 22px 24px 24px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 10px; }
+/* 🔴 THE POST TITLE IS A DEFAULT BREAKDANCE BUTTON ON THE REFERENCE, AND IT LOOKS LIKE ONE.
+   Verified by eye, not just by computed style: each card's headline renders as a dark navy pill
+   filling the top of the card (#111827 ground, white centred text, 14/24 padding, 3px radius) —
+   Breakdance's UNSTYLED button default, because the emitter built the title as a Button element and
+   never set its colours. The design's own heading treatment is nowhere near it.
+   Reproduced faithfully because fidelity is what the gate measures and this is not ours to redesign
+   unilaterally; filed in designs/apex-PUNCHLIST.md and raised with John as a taste call. If he rules
+   it a headline, this whole block becomes the Outfit/ink heading the rest of the design uses. */
+/* 🔴 RULED DEVIATION FROM THE REFERENCE — John, 2026-08-19. The reference renders every post
+   title as Breakdance's UNSTYLED button default (#111827 pill, white centred text, 14/24 padding,
+   3px radius) because its emitter built the title as a Button and never set its colours. John
+   ruled: a heading link, styled like the design's other headings. This is the `.apx-relcard__title`
+   /`.apx-svccard__title` register — Outfit, ink, 700 — with the design's own brand hover; the
+   reference's own type SIZE is kept, since the ruling was about the button chrome, not the scale.
+   See WAIVERS.md. */
+.apx-blogcard__title {
+  display: block;
+  margin: 0;
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 14.43px + 0.435vw, 20px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--apx-headings);
+  text-decoration: none;
+  transition: color var(--apx-dur) ease;
+}
+.apx-blogcard__title:hover { color: var(--apx-brand); }
+.apx-blogcard__excerpt { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: 15px; line-height: 1.6; }
+.apx-blogcard__excerpt p { margin: 0; }
+.apx-blogcard__meta { color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 12px; font-weight: 600; }
+/* The list band carries no top padding — the hero above it already closed the gap. */
+.apx-bloglist__inner { padding-top: 0; padding-bottom: clamp(80px, 10vw, 120px); align-items: flex-start; }
+@media (max-width: 1023px) { .apx-bloggrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px)  { .apx-bloggrid { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── /{post-slug}/ · the single-post template ────────────────────────────────────────────────────
+   Measured off :8098 post 257 (source tree 439), session 14, 2026-08-24. See emit.py's own module
+   note above band_post_hero(): the category pill, meta line and related-posts exclusion never
+   render on :8098 for a live emitter defect unrelated to this design, so those three pieces are
+   built to the fleet's documented intent (transcribed from postCatPill()/postMeta() in
+   sections/apex-blog.mjs) rather than copied from what the broken reference happens to show. */
+.apx-posthero { background-color: var(--apx-snow); }
+.apx-posthero__inner {
+  align-items: center;
+  text-align: center;
+  padding-top: clamp(120px, 12vw, 160px);
+  padding-bottom: clamp(48px, 6vw, 72px);
+}
+/* Empty on purpose — `[rank_math_breadcrumb]` renders nothing on :8098 (a RankMath config gap,
+   not a design choice), and this build has no more of a breadcrumb to supply than the reference
+   does. Kept as a sized slot (13px/24px, from post-257.css) so a future fill does not shift the
+   band's rhythm. Its own class, not a reuse of `.apx-breadcrumb-inner` — that one belongs to
+   `band_breadcrumb()`'s standalone band and carries rules (`padding-block:0 !important`) that
+   have nothing to do with this inline slot. */
+.apx-posthero__crumb { font-size: 13px; margin-bottom: 24px; }
+/* UNMEASURED, flagged rather than guessed: node 102 never renders on :8098 (see the module note),
+   so there is no served spacing to read for catpill→h1. 8px is a placeholder gap, not a captured
+   value — correct it the day a client record puts a real category through this slot and the fix
+   can be measured on the corrected reference. */
+/* `width: auto !important`, not the band-inner default 100% — same override
+   `.apx-googlebar__row` already documents: `.apx-band__inner > *` forces every direct child to
+   full width, and a pill is meant to hug its own text. */
+.apx-postcatpill {
+  display: inline-flex;
+  width: auto !important;
+  border-radius: 100px;
+  padding: 6px 14px;
+  margin-bottom: 8px;
+  background-color: var(--apx-brand);
+  color: var(--apx-white);
+  font-family: var(--apx-font-body);
+  font-size: 12px;
+  font-weight: 700;
+}
+.apx-posthero__h1 { margin-bottom: 20px; }
+/* Same UNMEASURED caveat as the category pill — transcribed from postMeta()'s stated values
+   (sections/apex-blog.mjs), not read off a served node. */
+.apx-postmeta { margin-top: 8px; color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 14px; font-weight: 600; }
+
+.apx-postfeatured__inner { padding-top: 0; padding-bottom: clamp(48px, 6vw, 72px); }
+.apx-postfeatured__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 5px 13px 32px 0px #00000070;
+}
+/* No `image` field on apex-solo's demo posts, and the fleet placeholder-filler does not cover one
+   either (`lib/placeholders.mjs`'s post fill is `body` only) — so :8098 shows Breakdance's own
+   internal "no image set" chrome here, which is not ours to reproduce pixel-for-pixel. This is a
+   plain neutral box at the same measured aspect ratio/radius/shadow instead of disappearing,
+   per [[placeholders-not-empty-states]]. */
+.apx-postfeatured__img--empty { background-color: var(--apx-cloud); }
+
+.apx-postcontent-band { background-color: var(--apx-snow); }
+.apx-postcontent-band__inner { padding-top: 0; padding-bottom: clamp(48px, 6vw, 72px); }
+/* Plain prose sizing off post-257.css — its OWN scale, not `.apx-prose__p`'s 17px or
+   `.apx-prose__lede`'s 19px. Bare tags because the reference's own PostContent element styles
+   bare h2/p/ul via Breakdance's typography settings, not per-node classes; a client's real
+   `post.body` gets the same treatment as the fleet placeholder article. */
+.apx-postcontent p { color: var(--apx-steel); font-size: 18px; line-height: 30.6px; margin: 0 0 18px; }
+/* NOT a fixed 32px — measured wrong the first time, off a mis-sized viewport. The reference has no
+   custom h2 rule inside PostContent at all: no Breakdance element styles it, so it falls through to
+   the browser's own UA default (0.83em margin) sitting on top of `h2{font-size:var(--apx-h2)}`.
+   Re-measured at the harness's own 1440px viewport: 44px / 1.15 lh / 0.83em margin, all three
+   already the global defaults our own `h1..h6{margin:0}` reset would otherwise zero out here. */
+.apx-postcontent h2 {
+  font-family: var(--apx-font-head);
+  font-size: var(--apx-h2);
+  line-height: var(--apx-lh-head);
+  font-weight: 700;
+  color: var(--apx-headings);
+  margin: 0.83em 0;
+}
+.apx-postcontent ul { color: var(--apx-steel); font-size: 18px; line-height: 30.6px; margin: 18px 0; padding-left: 40px; }
+.apx-postcontent li { margin: 0; }
+.apx-postcontent strong { font-weight: 700; }
+
+/* Related posts: bordered snow-to-white strip (border-top/bottom/left/right 1px cloud, bg white —
+   the section is full-bleed so left/right read as a thin frame, not a column rule), the
+   `.apx-blogcard` grid reused verbatim. `.apx-relatedposts__inner` overrides `.apx-band__inner`'s
+   default `align-items: flex-start` to centre the secthead() above the grid; the grid's own cards
+   stay left-aligned via `.apx-blogcard__body`'s `text-align: left` (see that rule's own note). */
+.apx-relatedposts { background-color: var(--apx-white); border: 1px solid var(--apx-cloud); }
+.apx-relatedposts__inner { align-items: center; text-align: center; }
+.apx-relatedposts .apx-bloggrid { text-align: left; }
+
+/* Post-single's OWN reviews-block box, not `global_block()`'s flat 100px default: measured on
+   :8098 at clamp(64px,8vw,96px) top/bottom on the block's own inner container (96px at the
+   harness's 1440px viewport) -- different from /contact/'s and /new-patient-special/'s 100px,
+   scoped so neither of those pages' own measured padding moves. */
+[data-sd='postreviews.band'] [data-sd='reviewsblock.inner'] {
+  padding-top: clamp(64px, 8vw, 96px);
+  padding-bottom: clamp(64px, 8vw, 96px);
+}
+
+
+/* ── the four footer nodes nothing had ever looked at ────────────────────────
+   Mapped 2026-08-22, closing four of the 35 role-coverage blind spots. All four
+   were carrying real drift the moment a role pointed at them: the reference
+   makes the logo link and both link-column wrappers flex columns, and the logo
+   link inherits BRAND as its currentColor. The redraw had them as plain blocks
+   in mist. Nothing was wrong with the CSS — nothing was measuring it. */
+[data-sd="footer.logolink"] {
+  /* Breakdance's container-link default transition, which only the behaviour gate ever saw. */
+  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: var(--apx-brand);
+  border-color: var(--apx-brand);
+}
+[data-sd="footer.serviceswrap"],
+[data-sd="footer.conditionswrap"] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ================================================================================================
+   NEW-PATIENT-SPECIAL  (post 273, session 11, 2026-08-22)
+   Three own bands plus the post-250 reviews global. Every value below is off post-273.css, read as
+   DECLARED (a clamp stays a clamp), not sampled off one viewport's computed style.
+   ================================================================================================ */
+
+/* ── band 1 · the offer hero ─────────────────────────────────────────────────────────────────── */
+/* The two washes are pseudo-elements on the SECTION, not on an inner wrapper, and both are taller
+   than the band (200% / 160%) so they read as light spilling in rather than as a vignette. */
+.apx-npshero { background-color: var(--apx-brand); }
+.apx-npshero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 200%;
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.08), transparent 60%);
+  pointer-events: none;
+}
+.apx-npshero::after {
+  content: "";
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 40%;
+  height: 160%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.08), transparent 60%);
+  pointer-events: none;
+}
+/* Same 120-160 / 64-96 rhythm the other page heroes use, declared here because this band does not
+   go through band_pagehero. */
+.apx-npshero__inner {
+  padding-top: clamp(120px, 12vw, 160px);
+  padding-bottom: clamp(64px, 8vw, 96px);
+  align-items: center;
+  /* ⚠️ NOT `.apx-band__inner--center`. That modifier also sets justify-content:center; the
+     reference's container declares align-items only, and leaves justify-content at normal. */
+  justify-content: normal;
+}
+.apx-npshero__col {
+  width: 720px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.apx-npshero__eyebrow {
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--apx-font-head);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.apx-npshero__h1 {
+  margin: 0 0 20px;
+  color: var(--apx-white);
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+}
+/* The price is a TEXT node, not a heading — it sits below the h1 in the DOM and reads above it in
+   size. Outfit is declared on it explicitly; the body face would be wrong at this weight. */
+.apx-npshero__price {
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(48px, 6vw, 80px);
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.apx-npshero__pricelabel { color: rgba(255, 255, 255, 0.7); font-weight: 500; margin-bottom: 24px; }
+.apx-npshero__sub {
+  width: 560px;
+  max-width: 100%;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+/* A white pill with brand text — the inverse of `--primary`, and the only button in the design
+   that sits on the brand ground. 400ms ease-in-out, not the 200ms `ease` the other buttons use. */
+.apx-btn--onember {
+  padding: 18px 44px;
+  /* The base `.apx-btn` size is the reference's HERO button; this one inherits the global 18px. */
+  font-size: 18px;
+  border-color: transparent;
+  border-radius: 100px;
+  background-color: var(--apx-white);
+  color: var(--apx-brand);
+  font-family: var(--apx-font-head);
+  font-weight: 700;
+  /* ⚠️ THE 400ms LIVES IN THE :hover RULE, NOT AT REST. The reference declares
+     `transition:400ms ease-in-out all` inside `.bde-button-273-107:hover`, so the button AT REST
+     carries only the button atom's own 0.2s. Declaring 400ms at rest was a one-property difference
+     no eye would catch and the behaviour gate reports immediately. */
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--onember:hover {
+  background-color: var(--apx-white);
+  color: var(--apx-brand);
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  transition: all 400ms ease-in-out;
+}
+
+/* ── band 2 · what's included ────────────────────────────────────────────────────────────────── */
+.apx-npsincluded { background-color: var(--apx-snow); }
+/* align-items only, same as the hero — the reference leaves justify-content at normal. */
+.apx-npsincluded__inner { align-items: center; justify-content: normal; }
+/* This band's head is NOT the 590px `.apx-secthead` box — the reference declares no width on it,
+   so it shrinks to content inside a centred column. Its sub carries its own 520px measure. */
+.apx-secthead--auto { width: auto; justify-content: normal; margin-bottom: 56px; }
+.apx-secthead__sub--m520 { width: 520px; max-width: 100%; }
+.apx-npsgrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 24px;
+}
+.apx-npscard {
+  padding: 32px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+/* Same as the hero CTA: the reference declares the transition INSIDE its :hover rule, so the card
+   at rest has none. And the edge is `#E6394650` — alpha 0x50/255 = 0.314, not the 0.31 that reads
+   like the same colour and is a different one. */
+.apx-npscard:hover {
+  border-color: rgba(230, 57, 70, 0.314);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+  transition: all 400ms ease-in-out;
+}
+.apx-npscard__tile {
+  width: 56px;
+  min-height: 56px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  /* ⚠️ rgba, NOT color-mix. The reference DECLARES this one as the literal #0D94881A, and Chrome
+     serializes a color-mix() as `color(srgb ...)` — a different computed string for the same
+     colour, which the gate reports as a difference and would otherwise be waived as a
+     "serialization quirk". The hours card two rules down IS a color-mix on the reference, so it
+     stays one here. Match the form the record declares, not the one that reads nicer. */
+  background-color: rgba(13, 148, 136, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+/* The tile holds an EMOJI as text, not an icon — so there is no svg here for icon parity to
+   compare, on either side.
+   ⚠️ THE COLOUR IS NOT DECORATIVE AND NOT THIS BAND'S. The reference's global stylesheet paints
+   EVERY `.bde-text` element STEEL, while the body default is MIST — two different values, and the
+   redraw only carries the body one. Every other text node in the redraw declares its own colour,
+   so this is the first place the gap surfaces. Declared here rather than swept into a base rule:
+   a redraw-wide text-colour rule would change nodes whose live counterpart is NOT a `.bde-text`,
+   and every one of those is green today. Filed for an audit in designs/apex-PUNCHLIST.md. */
+.apx-npscard__glyph { font-size: clamp(19px, 17.04px + 0.543vw, 24px); color: var(--apx-steel); }
+.apx-npscard__title {
+  margin: 0 0 8px;
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--apx-headings);
+}
+.apx-npscard__body { color: var(--apx-steel); font-size: 14px; line-height: 1.65; }
+@media (max-width: 1023px) { .apx-npsgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px)  { .apx-npsgrid { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── band 3 · booking ────────────────────────────────────────────────────────────────────────── */
+/* The row is /contact/'s, with two measured differences: this container declares
+   `align-items:flex-start` (contact's declares none, so its columns stretch), and the right column
+   is a flex column with an 80px gap holding TWO cards where contact's is a plain block with one. */
+.apx-contact__row--top { align-items: flex-start; }
+.apx-contact__infocol--stack { display: flex; flex-direction: column; gap: 80px; }
+.apx-npsformcard {
+  width: 100%;
+  max-width: 100%;
+  padding: 32px;
+  border: 1px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-snow);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+/* ⚠️ A SECOND INFO-CARD VARIANT, not the contact one. Diffed rule-for-rule against post-275 before
+   any reuse: the card itself matches (32px / cloud edge / 16px radius / snow), but it carries no
+   bottom margin here, its heading is a size smaller with a 16px gap rather than 20, and every row
+   inside it differs. Only the hour rows and the map are genuinely shared. */
+.apx-infocard--nps { margin-bottom: 0; }
+.apx-infocard__h3--nps { font-size: clamp(16px, 15.22px + 0.217vw, 18px); margin-bottom: 16px; }
+/* The rows carry their own 12px padding instead of sitting in an 18px-gap stack, and there is no
+   20px box around the icon — the glyph is 20px itself.
+   ⚠️ NO `width: 100%`. The reference declares none, and the card it sits in is a flex column with
+   align-items:flex-start, so each row SHRINKS TO ITS CONTENT — 206px, not the card's 398px. Forcing
+   full width looked harmless and moved every child inside it. */
+.apx-npsrow { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 12px; padding: 12px; }
+/* ⚠️ flex-shrink:0. The reference's icon holds 20px even where the row is over-constrained by the
+   hours card beside it; a shrinkable icon gave 18.375px here and pushed every width in the hours
+   column 1.6px out with it — one property, five roles. */
+.apx-npsrow__icon { display: flex; flex-shrink: 0; }
+.apx-npsrow__icon svg { width: 20px; height: 20px; fill: var(--apx-teal); }
+.apx-npsrow__body { display: flex; flex-direction: column; align-items: flex-start; }
+.apx-npsrow__line { color: var(--apx-steel); font-size: 15px; }
+/* City, state and zip are three separate inline texts at a 5px gap on this page — /contact/ sets
+   the same three values as one string on a second stacked line. */
+.apx-npsrow__citywrap { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 5px; }
+.apx-npsrow__notewrap { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 5px; }
+/* A Breakdance text-LINK, not a text node: it lays out as a flex box and takes the design's global
+   link colour (brand), which is why it is the one row that is not steel. */
+.apx-npsrow__phone { display: flex; color: var(--apx-brand); font-size: 15px; text-decoration: none; }
+.apx-npsrow__note { color: var(--apx-mist); font-size: 13px; }
+/* Breakdance's fancy-divider: a wrapper holding a 1px separator. Two of them sit between the three
+   rows; /contact/'s card has none. */
+.apx-npsdivider { width: 100%; display: flex; }
+.apx-npsdivider__wrap { display: flex; width: 100%; }
+.apx-npsdivider__rule { width: 100%; border-top: 1px solid var(--apx-cloud); }
+/* The hours sit in a grid column inside the row, then in a card of their own. */
+/* ⚠️ display:grid AND flex-direction:column. Breakdance's own `.bde-div` base declares the flex
+   column; the grid rule overrides `display` and leaves the direction declared, so the computed
+   style carries both. Dropping the direction is a one-property difference the gate reports and no
+   render shows. */
+.apx-npshours { width: 100%; display: grid; grid-template-columns: repeat(1, minmax(0, 1fr));
+  flex-direction: column; align-items: stretch; gap: 30px; }
+.apx-npshours__col { width: 100%; display: flex; flex-direction: column; align-items: flex-start; }
+.apx-hourscard {
+  width: 100%;
+  max-width: 100%;
+  align-items: flex-start;
+  padding: 26px 28px 28px;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 14px;
+  background-color: var(--apx-white);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.apx-hourscard__h3 {
+  margin: 0 0 6px;
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+/* The one genuine reuse in this card, and it still needed a modifier: this page declares a 1.7
+   line-height on both halves of an hour row and /contact/ declares none. */
+.apx-hourrow--lh .apx-hourrow__day,
+.apx-hourrow--lh .apx-hourrow__hours { line-height: 1.7; }
+/* The call card is the only ink-ground card in the design with a translucent WHITE edge. */
+.apx-npscall {
+  width: 100%;
+  max-width: 100%;
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 16px;
+  background-color: var(--apx-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.apx-npscall__h3 {
+  margin: 0;
+  color: var(--apx-white);
+  font-family: var(--apx-font-head);
+  font-size: clamp(16px, 14.43px + 0.435vw, 20px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+/* Steel, not the inherited mist — the same global `.bde-text` rule the included-card glyph hit. */
+.apx-npscall__sub { color: var(--apx-steel); font-size: 14px; margin-bottom: 20px; }
+.apx-npscall__note { color: var(--apx-steel); font-family: var(--apx-font-head); font-size: 14px; margin-top: 12px; }
+/* ── band 4 · the post-250 reviews global, in a DIFFERENT section box than /contact/'s ────────── */
+/* /contact/ gives it a top hairline and a centred container; this page gives it a full 1px edge on
+   all four sides and a container that does not centre. Same block, two boxes — measured on both. */
+.apx-reviewsblock--edged { border: 1px solid var(--apx-cloud); }
+
+/* ================================================================================================
+   LEGAL  (post 380, session 11) — two bands, six nodes, and no authored copy
+   The title and body come from tools/bd-generator/content/legal-pages.json, which is what the
+   reference renders too. Only the chrome below is this design's.
+   ================================================================================================ */
+.apx-legalhead { background-color: var(--apx-snow); }
+/* ⚠️ 260px of top padding, not the band rhythm. Breakdance's Header Builder ships no spacer, so
+   without it an emitted page's h1 renders underneath the fixed nav. */
+.apx-legalhead__inner {
+  padding-top: 260px;
+  padding-bottom: 56px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.apx-legalhead__col,
+.apx-legalbody__col {
+  width: 800px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+/* This eyebrow is the BODY face at 0.17em, not the design's `.apx-eyebrow` (Outfit at 0.12em).
+   Two eyebrows, two declarations — measured, not assumed from the word. */
+.apx-legalhead__eyebrow {
+  color: var(--apx-brand);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.apx-legalhead__h1 { text-align: center; }
+.apx-legalbody__inner { padding-top: 64px; padding-bottom: 96px; align-items: center; justify-content: center; }
+/* The prose block is CENTRED and its paragraphs are not: the reference left-aligns `p`, `ul` and
+   `ol` only, so h2 and h3 stay centred over left-set body copy. Measured on the served page, both
+   alignments, before it was written this way — it reads like an oversight and it is the reference.
+   The heading SIZES need no rule here (the base h1/h2/h3 already resolve to the reference's own
+   18px x 1.25^n / 1.15 / -0.02em); what they need back are the browser's default em-based MARGINS,
+   which this stylesheet's reset zeroes and Breakdance's does not. */
+.apx-legalprose { width: 100%; color: var(--apx-steel); }
+.apx-legalprose p  { text-align: left; margin: 0 0 18px; }
+.apx-legalprose ul,
+.apx-legalprose ol { text-align: left; margin: 18px 0; padding-left: 40px; }
+.apx-legalprose h2 { margin: 0.83em 0; }
+.apx-legalprose h3 { margin: 1em 0; }
+
+/* ================================================================================================
+   PRACTITIONER  (post 396, session 11) — four bands, one page per team member
+   Every value off post-396.css. The CONTENT is the record's; only the chrome is the design's.
+   ================================================================================================ */
+.apx-practhero__inner { padding-top: 260px; padding-bottom: 100px; align-items: center; justify-content: center; text-align: center; }
+/* ⚠️ NO `width` on the row, and PLAIN PERCENTAGES on the columns — not the `calc((100% - gap) * n)`
+   the contact row uses. The reference's row is a flex ITEM of a centred column, so it shrink-wraps
+   (1158.64px inside a 1160px container) and the browser resolves the 54/46 against that intrinsic
+   pass. Declaring `width:100%` plus the resolved calc gave 1160px and moved every child with it. */
+/* ⚠️ `width: auto` OPTS OUT of `.apx-band__inner > * { width: 100% }` — the blanket rule that
+   exists because :8098's HOME hero row collapses to 1019px inside a 1200px container. This row is
+   the other side of that coin: it shrink-wraps to 1158.64px, 1.36px narrower, and the 54/46 split
+   still resolves. Forcing 100% here moved every child by a sub-pixel and the image with them.
+   Measured, not assumed — the blanket rule is right for the case it was written for and wrong for
+   this one, which is why the opt-out is per element and carries its number. */
+.apx-practhero__row { width: auto; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 52px; }
+/* text-align:left, because the section-container centres and the reference's own column does not
+   inherit that — measured on the served page, where every text node inside computes `left`. */
+.apx-practhero__textcol { width: 54%; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.apx-practhero__imgcol  { width: 46%; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+/* TEAL at 0.14em — a third eyebrow declaration in this design, and none of the three agree.
+   `.apx-eyebrow` is Outfit/brand/0.12em, the legal one is body/brand/0.17em, this is body/teal/0.14em. */
+.apx-practhero__eyebrow {
+  color: var(--apx-teal);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.apx-practhero__h1 { margin: 0 0 18px; }
+/* Steel — the global `.bde-text` rule again, not the body default. */
+.apx-practhero__sub { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: clamp(17px, 16.22px + 0.217vw, 19px); line-height: 1.6; }
+.apx-practhero__chips { margin-top: 22px; display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+/* ⚠️ flex-shrink:0 and nowrap are the reference's own declarations, not a fix — a credential list
+   that wraps mid-string ("DC, CC / SP") is the failure they exist to prevent. */
+.apx-practchip {
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 999px;
+  background-color: var(--apx-snow);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.apx-practchip__text { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: 13px; font-weight: 500; }
+.apx-practhero__ctawrap { margin-top: 26px; display: flex; flex-direction: column; align-items: start; }
+/* The design's solid brand pill at weight 600 — the same button the CTA band uses. */
+.apx-btn--practcta {
+  /* The global button size (the body's 18px), not `.apx-btn`'s own 16px hero override. */
+  font-size: 18px;
+  border-radius: 100px;
+  background-color: var(--apx-brand);
+  border-color: transparent;
+  color: var(--apx-white);
+  font-weight: 600;
+  /* `all ... ease-in-out` — the button atom's own transition, not `.apx-btn`'s three-property
+     `... ease` list. Invisible at rest to every style diff; only the behaviour gate sees it. */
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--practcta:hover { background-color: var(--apx-brand-hover); color: var(--apx-white); }
+.apx-practhero__frame { width: 100%; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; }
+.apx-practhero__imgwrap { width: 100%; }
+.apx-practhero__img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+
+.apx-practbio { background-color: var(--apx-snow); }
+.apx-practbio__inner { align-items: center; justify-content: center; text-align: center; }
+/* Same opt-out, and here it is worth more than a sub-pixel: the reference's bio column shrinks to
+   its text (709.688px) and CENTRES, where a forced 100% pins the same sentence flush to the
+   container's left edge — a visible ~55px shift on the page's only body copy. */
+.apx-practbio__col { width: auto; max-width: 820px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.apx-practbio__p { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: clamp(16px, 15.61px + 0.109vw, 17px); line-height: 1.75; margin-bottom: 18px; }
+
+.apx-practteam__inner { align-items: center; justify-content: center; text-align: center; }
+.apx-practteam__wrap { width: 100%; display: flex; flex-direction: column; align-items: flex-start; }
+.apx-practteam__head { width: 720px; max-width: 100%; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.apx-practteam__h2 { text-align: center; margin: 0; }
+/* display:grid AND flex-direction:column — Breakdance's `.bde-div` base declares the flex column
+   and the grid rule only overrides `display`, so the computed style carries both. Same pair as the
+   booking band's hours grid. */
+.apx-practgrid { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  flex-direction: column; align-items: stretch; gap: 24px; }
+.apx-practcard {
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 14px;
+  background-color: var(--apx-white);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.apx-practcard__imgwrap { width: 100%; }
+.apx-practcard__img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+/* No width: the reference's body shrinks to its content inside a card whose align-items is
+   flex-start, and text-align:left because the section-container above centres and this column does
+   not inherit it. */
+.apx-practcard__body { padding: 20px 22px 22px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 6px; }
+.apx-practcard__name {
+  margin: 0 0 2px;
+  color: var(--apx-headings);
+  font-family: var(--apx-font-head);
+  font-size: clamp(18px, 17.22px + 0.217vw, 20px);
+}
+.apx-practcard__role { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: 15px; }
+.apx-practcard__chips { margin-top: 6px; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 6px; }
+.apx-practcard__chip {
+  padding: 3px 9px 4px;
+  border: 1px solid color-mix(in srgb, var(--apx-ink) 12%, transparent);
+  border-radius: 999px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.apx-practcard__chiptext { color: var(--apx-steel); font-family: var(--apx-font-body); font-size: 13px; font-weight: 600; }
+/* The outline link out to each member's own page. */
+.apx-btn--practlink {
+  /* Breakdance's own `--bde-button-font-weight`, not `.apx-btn`'s 700. */
+  font-weight: 500;
+  border-radius: 6px;
+  border-color: var(--apx-brand);
+  background-color: transparent;
+  color: var(--apx-brand);
+  font-size: 14px;
+  transition: all var(--apx-dur) ease-in-out;
+}
+.apx-btn--practlink:hover { background-color: var(--apx-brand); color: var(--apx-white); }
+
+.apx-practcta { background-color: var(--apx-ink); }
+.apx-practcta__inner { padding-top: 72px; padding-bottom: 72px; align-items: center; justify-content: center; text-align: center; }
+/* Opts out of `.apx-band__inner > * { width: 100% }` for the same reason the bio column does —
+   the reference shrinks this to its heading and centres it. */
+.apx-practcta__col { width: auto; max-width: 720px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.apx-practcta__h2 { margin: 0 0 14px; text-align: center; color: var(--apx-white); }
+.apx-practcta__sub {
+  text-align: center;
+  color: var(--apx-white);
+  font-family: var(--apx-font-body);
+  font-size: clamp(16px, 15.22px + 0.217vw, 18px);
+  line-height: 1.6;
+  margin-bottom: 26px;
+}
+@media (max-width: 1023px) {
+  .apx-practhero__row { flex-direction: column; align-items: stretch; }
+  .apx-practhero__textcol, .apx-practhero__imgcol { width: 100%; }
+  .apx-practgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) { .apx-practgrid { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── catalog prose: COLUMNS and TIMELINE (post 372 /prenatal/, session 14) ────────────────────────
+   Two block types only one catalog entry uses, and the static renderer had neither — building the
+   rest of the catalog for the preview is what surfaced them. Every value off post-372.css. */
+.apx-prose__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-bottom: 24px; align-items: stretch; }
+.apx-prose__col { display: flex; flex-direction: column; align-items: flex-start; }
+/* Teal / body face / 0.14em — the practitioner hero's eyebrow register, a THIRD eyebrow in this
+   design and deliberately not `.apx-eyebrow` (Outfit / brand / 0.12em). */
+.apx-prose__collabel {
+  color: var(--apx-teal);
+  font-family: var(--apx-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.apx-prose__collist ul { margin: 0; padding-left: 40px; }
+.apx-prose__collist ul li { font-size: 16px; line-height: 1.7; color: var(--apx-steel); }
+.apx-prose__steps { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: 24px; }
+.apx-prose__step { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 16px; }
+/* 🔴 RULED 2026-08-24 — JOHN'S EYE PASS. The reference's badge has NO ground and a WHITE number
+   (post 372 node 137 computes `rgba(0,0,0,0)`, node 138 is #fff), so its step numbers are invisible
+   on the white page. He ruled they should read, and should match the service pages: *"the step
+   numbers on that page as well they should match the other page like chiropractic so we should
+   have them"*.
+
+   So this is `.apx-processstep__num`'s treatment VALUE FOR VALUE — 56px box, 2px cloud edge, 16px
+   radius, snow ground, ink number, same brand hover — rather than a look invented for one catalog
+   page. Its own class because a `timeline` block sits inside catalog PROSE while the process band
+   is a band: they share no wrapper, and sharing a rule would couple two things that only look
+   alike. A declared deviation; see WAIVERS.md. */
+.apx-prose__stepnum {
+  width: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  border: 2px solid var(--apx-cloud);
+  border-radius: 16px;
+  background-color: var(--apx-snow);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apx-prose__step:hover .apx-prose__stepnum { background: var(--apx-brand); border-color: var(--apx-brand); }
+.apx-prose__step:hover .apx-prose__stepnum * { color: var(--apx-white); }
+.apx-prose__stepnumtext { text-align: center; color: var(--apx-headings); font-family: var(--apx-font-body); font-size: 20px; font-weight: 700; }
+.apx-prose__stepbody { display: flex; flex-direction: column; align-items: flex-start; }
+.apx-prose__steptitle {
+  margin: 0 0 6px;
+  font-family: var(--apx-font-head);
+  font-size: clamp(18px, 17.22px + 0.217vw, 20px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--apx-headings);
+}
+.apx-prose__steptext { font-family: var(--apx-font-body); font-size: 16px; line-height: 1.65; color: var(--apx-steel); }
+@media (max-width: 767px) { .apx-prose__cols { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+
+/* ── LINKLIST + VIDEOGRID · the two catalog blocks added 2026-09-09 ──────────────────────────── */
+/* Both use tokens already defined above rather than new literals, so a palette swap carries them. */
+
+.apx-linklist { list-style: none; margin: 0 0 1.75rem; padding: 0; display: grid; gap: 0.9rem; }
+.apx-linklist__item { padding: 0.95rem 1.1rem; border: 1px solid var(--apx-line, #e4e6e9);
+  border-radius: 10px; background: var(--apx-snow, #fbfbfc); }
+.apx-linklist__link { font-weight: 600; text-decoration: none; color: var(--apx-ink, #17202a);
+  border-bottom: 2px solid var(--apx-ember, #d9762b); padding-bottom: 1px; }
+.apx-linklist__link:hover, .apx-linklist__link:focus-visible { color: var(--apx-ember, #d9762b); }
+.apx-linklist__blurb { display: block; margin-top: 0.3rem; font-size: 0.94rem;
+  color: var(--apx-muted, #5b6470); }
+
+.apx-videogrid { list-style: none; margin: 0 0 1.75rem; padding: 0; display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.apx-videogrid__item { position: relative; aspect-ratio: 16 / 9; border-radius: 10px;
+  overflow: hidden; background: var(--apx-ink, #17202a); }
+.apx-videogrid__btn { all: unset; display: block; width: 100%; height: 100%; cursor: pointer;
+  position: relative; }
+.apx-videogrid__btn:focus-visible { outline: 3px solid var(--apx-ember, #d9762b); outline-offset: 2px; }
+.apx-videogrid__thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The play badge is drawn, not an image file: one less request per card, 22 cards on this page. */
+.apx-videogrid__play { position: absolute; inset: 0; margin: auto; width: 54px; height: 54px;
+  border-radius: 50%; background: rgba(0,0,0,0.62); }
+.apx-videogrid__play::after { content: ""; position: absolute; inset: 0; margin: auto; width: 0; height: 0;
+  border-style: solid; border-width: 9px 0 9px 15px; border-color: transparent transparent transparent #fff; }
+.apx-videogrid__title { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.55rem 0.7rem;
+  font-size: 0.86rem; line-height: 1.3; color: #fff;
+  background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0)); }
+.apx-videogrid__frame { width: 100%; height: 100%; border: 0; display: block; }
+
+/* The grid is decorative motion-wise, but the play badge must not animate for reduced-motion
+   users. Nothing here animates, deliberately - see the reduced-motion block above, which pins
+   animation-iteration-count precisely so a looping animation cannot vibrate. */

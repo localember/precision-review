@@ -1,0 +1,26 @@
+/* Apex webfaces — self-hosted, same origin as the page.
+   The three woff2 files are BYTE-IDENTICAL to the ones apex-solo :8098 serves
+   (copied from its uploads/breakdance/fonts, not re-subset), so the two builds
+   render the same outlines and the same metrics. A re-subset here would be a
+   silent fidelity variable in the one place a diff cannot see it.
+   ⚠️ Self-hosted on purpose. A render-blocking fonts.googleapis.com stylesheet
+   put 74% of mobile LCP in render delay on Sage, and display=swap does not save
+   you from that — swap governs the TEXT, not the <link>. It is also the CORS
+   trap: an imported face that fails silently falls back to a system serif while
+   the computed style still names the family you asked for.
+   The weight mapping is the reference's, unchanged: DM Sans declares 400/500/700
+   only, so the 800 the stat cards ask for is synthesised — on both builds alike. */
+
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit_Local.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit_Local.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit_Local.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit_Local.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit_Local.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit_Local.woff2") format("woff2"); font-weight: 900; font-style: normal; font-display: swap; }
+
+@font-face { font-family: "DM Sans"; src: url("assets/fonts/DMSans_Local.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "DM Sans"; src: url("assets/fonts/DMSans_Local.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "DM Sans"; src: url("assets/fonts/DMSans_Local.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "DM Sans"; src: url("assets/fonts/DMSans_Italic_Local.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "DM Sans"; src: url("assets/fonts/DMSans_Italic_Local.woff2") format("woff2"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: "DM Sans"; src: url("assets/fonts/DMSans_Italic_Local.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
