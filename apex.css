@@ -53,6 +53,12 @@
      client recolour that set only the two tokens above left SEVEN RED EDGES on a site with no other
      red in it. Nothing would have caught that: every one is a valid colour on a valid element. */
   --apx-brand-glow:  var(--apx-ember-glow);
+  /* 🔴 AND AN ALPHA-CAPABLE CHANNEL (2026-09-13). Nine rules painted the brand as a LITERAL rgba or
+     #rrggbbaa — box-shadows, radial background washes, hover borders — so they were invisible to the
+     token swap AND to a probe that reads color/background-color/border-color, which is how a build
+     that had "no red anywhere" still glowed red round the years badge and under every hover.
+     rgba() cannot take a hex var, so the channel ships as three numbers. */
+  --apx-brand-rgb:   230, 57, 70;
 
   /* ── roles (global settings → colors) ─────────────────────────────────── */
   --apx-text:     var(--apx-mist);
@@ -232,7 +238,7 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(at 80% 20%, rgba(230, 57, 70, 0.07) 0%, transparent 60%),
+    radial-gradient(at 80% 20%, rgba(var(--apx-brand-rgb), 0.07) 0%, transparent 60%),
     radial-gradient(at 20% 80%, rgba(13, 148, 136, 0.06) 0%, transparent 60%);
 }
 
@@ -612,7 +618,68 @@ h1, h2, h3, h4, h5, h6 {
 .apx-header--scrolled .apx-header__border { height: 1px; background: var(--apx-cloud); }
 .apx-header__border { height: 0; }
 
-.apx-menu-toggle { display: none; }
+.apx-menu-toggle {
+  display: none;
+  flex: none;                 /* or the flex row shrinks it to 0 and the button cannot be tapped */
+  width: 44px; height: 44px; padding: 0;
+  background: none; border: 0; cursor: pointer;
+  position: relative;
+}
+/* 🔴 THE BUTTON WAS NEVER DRAWN. Its markup is a bare <span> and the only rule it had was
+   display:none/block, so on mobile the header showed a 44px void — and `.apx-nav__list--open`,
+   which apex.js has always toggled, was styled by NOTHING. Under 1024px this design had no
+   navigation at all: the list was display:none and the button that should reveal it was invisible
+   and inert. Found 2026-09-13 while adding the client's own pages to the menu. */
+.apx-menu-toggle > span,
+.apx-menu-toggle > span::before,
+.apx-menu-toggle > span::after {
+  content: ""; position: absolute; left: 11px; width: 22px; height: 2px; border-radius: 2px;
+  background: var(--apx-white); transition: transform var(--apx-dur) ease, opacity var(--apx-dur) ease;
+}
+.apx-menu-toggle > span { top: 21px; }
+.apx-menu-toggle > span::before { top: -7px; left: 0; }
+.apx-menu-toggle > span::after  { top:  7px; left: 0; }
+.apx-header--scrolled .apx-menu-toggle > span,
+.apx-header--scrolled .apx-menu-toggle > span::before,
+.apx-header--scrolled .apx-menu-toggle > span::after { background: var(--apx-ink); }
+.apx-menu-toggle[aria-expanded="true"] > span { background: transparent; }
+.apx-menu-toggle[aria-expanded="true"] > span::before { transform: translateY(7px) rotate(45deg); }
+.apx-menu-toggle[aria-expanded="true"] > span::after  { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── DROPDOWNS. A client with a page set has more pages than a flat bar can carry: Precision runs
+   the five Gonstead-layer pages plus five of its own, and every one was unreachable from the menu
+   (John, 2026-09-13). Their live site groups exactly this way, so the shape is theirs, not ours. */
+.apx-nav__sub {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(6px);
+  min-width: 232px; padding: 10px; margin: 0; list-style: none; z-index: 60;
+  background: var(--apx-white); border-radius: var(--apx-r-card);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity var(--apx-dur) ease, transform var(--apx-dur) ease;
+}
+.apx-nav__item--has-sub:hover > .apx-nav__sub,
+.apx-nav__item--has-sub:focus-within > .apx-nav__sub {
+  opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(-50%) translateY(0);
+}
+/* The gap between the bar and the panel is dead space a pointer crosses; without this bridge the
+   panel closes mid-travel and the menu feels broken rather than fast. */
+.apx-nav__item--has-sub::after { content: ""; position: absolute; inset: 100% 0 auto; height: 10px; }
+.apx-nav__sublink {
+  display: block; padding: 9px 12px; border-radius: 8px; text-decoration: none;
+  font-family: var(--apx-font-body); font-size: 15px; font-weight: 500; color: var(--apx-steel);
+  white-space: nowrap; transition: background-color var(--apx-dur) ease, color var(--apx-dur) ease;
+}
+.apx-nav__sublink:hover, .apx-nav__sublink:focus-visible {
+  background-color: var(--apx-snow); color: var(--apx-brand);
+}
+/* A grouped label wrapped to two lines and made the whole bar uneven — but nowrap ALONE widened
+   the nav and pushed the phone and the CTA into three lines each, which is worse. The bar has to
+   give somewhere, so the nav also drops its gap a little and the CTA refuses to wrap at all. */
+.apx-nav__link { white-space: nowrap; }
+.apx-header__cta .apx-btn { white-space: nowrap; }
+.apx-nav__caret { display: inline-block; width: 8px; height: 8px; margin-left: 6px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); }
 
 /* ============================================================================
    BAND — hero
@@ -719,6 +786,10 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--apx-steel);
 }
 .apx-statcard__label--sm { font-size: var(--apx-t-nano); }
+/* The hero score card's rating row (2026-09-13). Sized to sit under the card's own padding without
+   widening it: five 14px stars at a 2px gap is 78px, inside the narrowest the card ever gets. */
+.apx-statcard__stars { display: flex; gap: 2px; margin-bottom: 2px; }
+.apx-statcard__stars svg { width: 14px; height: 14px; fill: var(--apx-gold); flex: none; }
 
 /* ============================================================================
    BAND — trust strip
@@ -788,6 +859,36 @@ h1, h2, h3, h4, h5, h6 {
   .apx-trust__row { gap: 1px; }
   .apx-nav__list { display: none; }
   .apx-menu-toggle { display: block; }
+  /* 🔴 AND THE BOOK BUTTON HAS TO GO, or there is no room for the toggle. Measured at 375px: the
+     phone and the CTA together pushed the hamburger to x=598 in a 580px viewport at ZERO width —
+     present in the DOM, impossible to tap. The offer is still one tap away in the panel below and
+     twice more in the hero, so nothing is lost; the phone stays because on a phone it IS the
+     conversion. */
+  .apx-header__cta .apx-btn--nav-book { display: none; }
+
+  /* The open panel. Sub-lists are FLATTENED rather than nested behind another tap: on a phone an
+     accordion inside a drawer is two interactions to reach a page, and these are the pages the
+     practice most wants read. */
+  .apx-nav__list--open {
+    display: flex; flex-direction: column; align-items: stretch; gap: 0;
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 70;
+    max-height: calc(100vh - 100%); overflow-y: auto;
+    padding: 12px 20px 20px; margin: 0;
+    background: var(--apx-white); box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
+  }
+  .apx-nav__list--open .apx-nav__item { position: static; width: 100%; }
+  .apx-nav__list--open .apx-nav__item::before,
+  .apx-nav__list--open .apx-nav__item--has-sub::after { display: none; }
+  .apx-nav__list--open .apx-nav__link {
+    display: block; padding: 13px 0; color: var(--apx-ink); font-size: 17px; font-weight: 600;
+    border-bottom: 1px solid var(--apx-cloud);
+  }
+  .apx-nav__list--open .apx-nav__caret { display: none; }
+  .apx-nav__list--open .apx-nav__sub {
+    position: static; transform: none; opacity: 1; visibility: visible; pointer-events: auto;
+    min-width: 0; padding: 4px 0 8px; background: none; box-shadow: none;
+  }
+  .apx-nav__list--open .apx-nav__sublink { padding: 9px 0 9px 14px; white-space: normal; }
 }
 
 @media (max-width: 767px) {
@@ -971,7 +1072,7 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 80% 20%, #e6394612 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(var(--apx-brand-rgb), 0.07) 0%, transparent 60%),
     radial-gradient(ellipse at 20% 80%, #0d94880f 0%, transparent 60%);
 }
 
@@ -998,7 +1099,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .apx-condcard:hover {
   background-color: #ffffff12;
-  border-color: #e6394650;
+  border-color: rgba(var(--apx-brand-rgb), 0.31);
   transform: translateY(-4px);
 }
 
@@ -1064,7 +1165,7 @@ h1, h2, h3, h4, h5, h6 {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at right, rgba(230, 57, 70, 0.04), transparent 70%);
+  background: radial-gradient(ellipse at right, rgba(var(--apx-brand-rgb), 0.04), transparent 70%);
 }
 
 .apx-cols {
@@ -1112,7 +1213,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 16px 24px;
   border-radius: 14px;
   background-color: var(--apx-brand);
-  box-shadow: 0 12px 40px 0 #e6394666;
+  box-shadow: 0 12px 40px 0 rgba(var(--apx-brand-rgb), 0.4);
   text-align: center;
 }
 .apx-yearsbadge__n {
@@ -1213,13 +1314,13 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--apx-font-head);
   font-size: 16px;
   font-weight: 600;
-  box-shadow: 0 4px 24px 0 rgba(230, 57, 70, 0.314);
+  box-shadow: 0 4px 24px 0 rgba(var(--apx-brand-rgb), 0.314);
   transition: all var(--apx-dur) ease-in-out;
 }
 .apx-btn--glow:hover {
   background-color: var(--apx-brand-hover);
   color: var(--apx-white);
-  box-shadow: 0 8px 32px 0 rgba(230, 57, 70, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(var(--apx-brand-rgb), 0.4);
   transform: translateY(-2px);
 }
 
@@ -1294,7 +1395,7 @@ h1, h2, h3, h4, h5, h6 {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, rgba(230, 57, 70, 0.06), transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(var(--apx-brand-rgb), 0.06), transparent 70%);
 }
 .apx-googlebar__inner { align-items: center; padding-block: 56px; }
 
@@ -3730,7 +3831,7 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
    at rest has none. And the edge is `#E6394650` — alpha 0x50/255 = 0.314, not the 0.31 that reads
    like the same colour and is a different one. */
 .apx-npscard:hover {
-  border-color: rgba(230, 57, 70, 0.314);
+  border-color: rgba(var(--apx-brand-rgb), 0.314);
   box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.06);
   transform: translateY(-4px);
   transition: all 400ms ease-in-out;
@@ -4003,7 +4104,17 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
 .apx-btn--practcta:hover { background-color: var(--apx-brand-hover); color: var(--apx-white); }
 .apx-practhero__frame { width: 100%; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; }
 .apx-practhero__imgwrap { width: 100%; }
-.apx-practhero__img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+/* 🔴 3 / 4 PORTRAIT, NOT 4 / 3 LANDSCAPE — the ratio was INVERTED in the static port. Measured on
+   the reference, spinedesignchiro.com/team/dr-denise-carlstrom/: its practitioner photo computes
+   `aspect-ratio: 3 / 4` in a 548x731 box at the DEFAULT `object-position: 50% 50%`. Ours was 4/3,
+   so `cover` took a horizontal band out of the middle of a standing figure — a chest, not a face —
+   on both practitioner pages (John, 2026-09-13).
+   ⚠️ AND NO object-position ANCHOR. My first fix nudged the crop upward and then needed a
+   per-photograph override to stop Jenny's chin leaving the frame; John's call was to match the
+   reference instead. He was right, and it is the better fix for a reason worth writing down: a
+   1600x2000 headshot is 4:5 and the box is 3:4, so the crop is now about five percent of the height
+   instead of forty. The anchor was compensating for an inverted ratio. */
+.apx-practhero__img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; }
 
 .apx-practbio { background-color: var(--apx-snow); }
 .apx-practbio__inner { align-items: center; justify-content: center; text-align: center; }
