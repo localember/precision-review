@@ -773,6 +773,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   color: var(--apx-brand);
 }
+.apx-statcard__scorerow .apx-statcard__value--score { line-height: 1; }
 .apx-statcard__value--score {
   font-size: var(--apx-t-score);
   color: var(--apx-ink);
@@ -786,9 +787,11 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--apx-steel);
 }
 .apx-statcard__label--sm { font-size: var(--apx-t-nano); }
-/* The hero score card's rating row (2026-09-13). Sized to sit under the card's own padding without
-   widening it: five 14px stars at a 2px gap is 78px, inside the narrowest the card ever gets. */
-.apx-statcard__stars { display: flex; gap: 2px; margin-bottom: 2px; }
+/* The hero score card's rating row (2026-09-13). Stars sit to the LEFT of the score, not above it
+   (John) — the reference reads as one line of rating, and stacking them made the card tall and
+   pushed the count away from the number it belongs to. */
+.apx-statcard__scorerow { display: flex; align-items: center; gap: 8px; }
+.apx-statcard__stars { display: flex; gap: 2px; }
 .apx-statcard__stars svg { width: 14px; height: 14px; fill: var(--apx-gold); flex: none; }
 
 /* ============================================================================
