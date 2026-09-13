@@ -48,6 +48,11 @@
      and nowhere else, so a client recolour is one declaration, not a sweep. */
   --apx-brand:       var(--apx-ember);
   --apx-brand-hover: var(--apx-ember-dark);
+  /* 🔴 THE GLOW NEEDED ONE TOO (2026-09-13). It was used as `--apx-ember-glow` directly in seven
+     places — the offer gradient, the footer phone button, footer link hovers, the sticky bar — so a
+     client recolour that set only the two tokens above left SEVEN RED EDGES on a site with no other
+     red in it. Nothing would have caught that: every one is a valid colour on a valid element. */
+  --apx-brand-glow:  var(--apx-ember-glow);
 
   /* ── roles (global settings → colors) ─────────────────────────────────── */
   --apx-text:     var(--apx-mist);
@@ -1431,7 +1436,7 @@ h1, h2, h3, h4, h5, h6 {
      inherited value (mist) rather than the currentColor default a white-text element would
      otherwise resolve to. */
   border-top-color: var(--apx-mist);
-  background: linear-gradient(135deg, var(--apx-brand) 1%, var(--apx-ember-glow) 100%);
+  background: linear-gradient(135deg, var(--apx-brand) 1%, var(--apx-brand-glow) 100%);
   color: var(--apx-white);
   font-family: var(--apx-font-head);
   font-size: clamp(16px, 15.22px + 0.217vw, 18px);
@@ -1832,16 +1837,16 @@ h1, h2, h3, h4, h5, h6 {
 .apx-footer__nap-street { color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 15px; line-height: 1.6; }
 
 .apx-btn--footer-phone {
-  border-color: var(--apx-ember-glow);
+  border-color: var(--apx-brand-glow);
   background-color: transparent;
-  color: var(--apx-ember-glow);
+  color: var(--apx-brand-glow);
   border-radius: 6px;
   font-family: var(--apx-font-body);
   font-size: 15px;
   font-weight: 500;
   transition: all var(--apx-dur) ease-in-out;
 }
-.apx-btn--footer-phone:hover { background-color: var(--apx-ember-glow); color: var(--apx-white); }
+.apx-btn--footer-phone:hover { background-color: var(--apx-brand-glow); color: var(--apx-white); }
 
 .apx-footer__hours { color: var(--apx-mist); font-family: var(--apx-font-body); font-size: 14px; }
 
@@ -1855,7 +1860,7 @@ h1, h2, h3, h4, h5, h6 {
 .apx-footer__linklist { list-style: none; margin: 0; padding: 0; }
 .apx-footer__linklist li { margin: 0; font-size: 14px; line-height: 1.9; }
 .apx-footer__linklist a { color: var(--apx-mist); text-decoration: none; }
-.apx-footer__linklist a.apx-footer__linklist--more { color: var(--apx-ember-glow); }
+.apx-footer__linklist a.apx-footer__linklist--more { color: var(--apx-brand-glow); }
 
 .apx-footer__bottomrow {
   width: 100%;
@@ -1916,7 +1921,7 @@ h1, h2, h3, h4, h5, h6 {
 /* No transition at all -- the reference's colour flip on hover is instant, unlike the nav link
    underline elsewhere on the page. Checked, not assumed the same as its neighbours. */
 .apx-footer__legallinks a { display: flex; color: var(--apx-mist); font-size: 13px; text-decoration-line: none; }
-.apx-footer__legallinks a:hover { color: var(--apx-ember-glow); }
+.apx-footer__legallinks a:hover { color: var(--apx-brand-glow); }
 
 @media (max-width: 1119px) {
   .apx-footer__cols { flex-direction: column; }
@@ -3137,7 +3142,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 12px;
 }
 .apx-stickybar__phone { font-size: 14px; }
-.apx-stickybar__phone a { color: var(--apx-ember-glow); font-weight: 600; text-decoration: none; }
+.apx-stickybar__phone a { color: var(--apx-brand-glow); font-weight: 600; text-decoration: none; }
 /* `all`, and `ease-in-out` -- not `.apx-btn`'s property-set + plain `ease`. Read off the live
    element's own computed transition, because a button that looks identical at rest can still be
    the only one on the page that eases differently, and only the behaviour gate ever says so. */
