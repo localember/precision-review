@@ -790,6 +790,15 @@ h1, h2, h3, h4, h5, h6 {
 /* The hero score card's rating row (2026-09-13). Stars sit to the LEFT of the score, not above it
    (John) — the reference reads as one line of rating, and stacking them made the card tall and
    pushed the count away from the number it belongs to. */
+/* A catalog `image` block. Full-width of the prose column, same radius the design uses on a
+   plain photo, and a caption-free figure because the block carries alt text only. */
+/* An attributed quotation inside catalog prose. Brand rule on the left rather than quote marks:
+   the design already uses a coloured rule for emphasis and has no decorative glyph of its own. */
+.apx-prose__quote { margin: 0 0 24px; padding: 4px 0 4px 20px; border-left: 3px solid var(--apx-brand); }
+.apx-prose__quote p { margin: 0 0 6px; font-size: 19px; line-height: 1.6; color: var(--apx-ink); }
+.apx-prose__cite { display: block; font-size: 14px; font-style: normal; color: var(--apx-steel); }
+.apx-prose__figure { margin: 0 0 24px; }
+.apx-prose__figure img { display: block; width: 100%; height: auto; border-radius: 14px; }
 .apx-statcard__scorerow { display: flex; align-items: center; gap: 8px; }
 .apx-statcard__stars { display: flex; gap: 2px; }
 .apx-statcard__stars svg { width: 14px; height: 14px; fill: var(--apx-gold); flex: none; }
