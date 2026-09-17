@@ -142,6 +142,11 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
 body {
   margin: 0;
+  /* A long unbreakable token — a URL in the legal copy, a run-on word in a post title — is wider
+     than a 280px prose column on a 320px screen and takes the whole document sideways with it.
+     Measured: /terms-of-service/ 327px and /chiropractor-green-bay/ 337px at a 320px viewport.
+     This only fires when a word would otherwise overflow, so no line that already fits moves. */
+  overflow-wrap: break-word;
   background: var(--apx-page);
   color: var(--apx-text);
   font-family: var(--apx-font-body);
@@ -303,8 +308,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .apx-lead {
-  width: 540px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 540px;
   font-family: var(--apx-font-body);
   font-size: var(--apx-t-lead);
   line-height: 1.6;
@@ -869,12 +874,39 @@ h1, h2, h3, h4, h5, h6 {
   .apx-hero__copy, .apx-hero__media { width: 100%; }
   .apx-header__logo { width: 140px; max-width: 140px; }
   .apx-trust__row { gap: 1px; }
+
+
+}
+
+/* 🔴 THE STAT CARDS' OVERHANG IS ARITHMETIC, AND 1023 WAS THE WRONG PLACE TO FIX IT.
+   The two cards hang outside the media frame on purpose (`right: -26px`, `left: -42px`) — that
+   overhang is what makes them read as floating rather than pasted on. But the frame's edge is the
+   CONTAINER's edge, and the container is `min(1200px, 100vw - 40px)`. So the overhang only has
+   room when the viewport is wider than the container plus the overhang: 1200 + 2x42 = 1284px.
+   Anywhere below that, the card hangs off the SCREEN and the whole page scrolls sideways.
+   Measured before this rule: 6px over at 1024px, and the same 6px at 768px and 375px — the same
+   defect at every width, which is why fixing it at the 1023 breakpoint only moved it.
+   The drift animation and the offset shadow still carry the floating effect when it is tucked. */
+@media (max-width: 1283px) {
+  .apx-float--tr { right: 0; }
+  .apx-float--bl { left: 0; }
+}
+
+/* 🔴 THE NAV COLLAPSES AT 1119, NOT 1023, AND THE REASON IS THAT THE MENU IS CLIENT DATA.
+   At exactly 1024px the desktop bar was 1030px wide — six pixels over — because the logo, a
+   seven-item menu, the phone and the book button do not fit, and "seven items" is Precision's
+   record, not a constant. Shaving six pixels off a gap would have fixed THIS client and broken
+   the next one with a longer menu. Collapsing a breakpoint earlier is the fix that does not
+   depend on how a practice names its pages. 1119 is the reference's own next breakpoint, already
+   used by the footer, so this adds no new number to the design. (2026-09-17)
+   ⚠️ The hero deliberately does NOT stack here — that stays at 1023, where it was measured. */
+@media (max-width: 1119px) {
   .apx-nav__list { display: none; }
   .apx-menu-toggle { display: block; }
   /* 🔴 AND THE BOOK BUTTON HAS TO GO, or there is no room for the toggle. Measured at 375px: the
-     phone and the CTA together pushed the hamburger to x=598 in a 580px viewport at ZERO width —
-     present in the DOM, impossible to tap. The offer is still one tap away in the panel below and
-     twice more in the hero, so nothing is lost; the phone stays because on a phone it IS the
+     phone and the CTA together pushed the hamburger past the right edge at ZERO width — present
+     in the DOM, impossible to tap. The offer is still one tap away in the panel below and twice
+     more in the hero, so nothing is lost; the phone stays because on a phone it IS the
      conversion. */
   .apx-header__cta .apx-btn--nav-book { display: none; }
 
@@ -911,6 +943,21 @@ h1, h2, h3, h4, h5, h6 {
   .apx-hero__inner { padding-top: 140px; padding-bottom: 72px; }
 }
 
+/* 🔴 THE HEADER STILL DID NOT FIT, and no amount of shrinking the columns was going to fix it:
+   the bar's own contents are a 130px logo, a 184px phone button whose number cannot wrap, and a
+   44px hamburger, which is 427px of content before gutters in a 375px viewport. Arithmetic, not
+   layout. Below 576px the number collapses to its icon — the tel: link and the number itself stay
+   in the DOM, so a screen reader still announces it and a tap still dials. The phone stays
+   present because on a phone it IS the conversion; it just stops being 184px wide. */
+@media (max-width: 575px) {
+  .apx-btn--nav-phone {
+    font-size: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .apx-btn--nav-phone::after { margin-left: 0; margin-right: 0; }
+}
+
 /* Motion off means motion OFF, but never `animation: none` on an `infinite`
    keyframe — that is what made a reveal vibrate once. Durations to ~0 instead. */
 @media (prefers-reduced-motion: reduce) {
@@ -928,6 +975,33 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================================
+   🔴 A FIXED `width` IS A FLOOR, NOT A CAP — and `max-width: 100%` does not save you
+   Every text measure in this file used to read `width: 560px; max-width: 100%`, which
+   looks safe and is not. A fixed width sets the MIN-CONTENT size of the element, and
+   min-content propagates up through every flex and grid ancestor, so the band, the
+   header and finally the document are all sized by the widest fixed measure on the
+   page. `max-width: 100%` then resolves against a parent that has ALREADY been pushed
+   out, and caps nothing.
+   MEASURED on Precision's homepage at a 375px viewport, 2026-09-17: the document was
+   580px wide. Rewriting these thirteen declarations as `width: 100%; max-width: Npx` —
+   pixel-identical at every width above N — took it to 427px. `width: auto` on a flex or
+   grid child is the same bug spelled differently: it shrink-wraps to MAX-content, so
+   `.apx-secthead--auto` took 520px of heading on a 375px screen.
+   ⚠️ AND THE HEADER IS A VICTIM, NOT A CAUSE. `.apx-header` is `position: fixed` with
+   `inset-inline: 0`, so it stretches to the overflowed area and reports the page's full
+   width. Hiding it entirely changed the document width by ZERO. Read it as the cause
+   and you go and "fix" the header, which is where the previous pass ended up. The
+   header's own content genuinely did not fit either — that is the 575px rule below —
+   but it was never what made the page 580px wide.
+   ⚠️ THIS IS WHY THE EARLIER MOBILE PASS "PASSED". The comment at the 1023px
+   breakpoint reads "Measured at 375px: ... pushed the hamburger to x=598 in a 580px
+   viewport". The viewport WAS 375px. The 580px it recorded was the overflow — the
+   symptom it was standing in — read back as the frame. It then fixed the hamburger's
+   reachability inside a page that was still 55% too wide, and every check agreed.
+   A number that disagrees with the number you asked for is the finding, not the ruler.
+   ============================================================================ */
+
+/* ============================================================================
    COMPONENT FAMILY — section header
    Eyebrow, dual heading, sub, centred in a 590px measure. This block opens most
    bands on the site, which is why it is a family and not part of any one of them.
@@ -937,8 +1011,8 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 590px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 590px;
   text-align: center;
 }
 
@@ -1051,8 +1125,18 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
 }
 
+/* 🔴 OVERRIDE `grid-template-columns`, NEVER `--apx-cols` — the emitter sets the variable INLINE
+   (`style="--apx-cols:3"`), and an inline declaration beats any stylesheet rule, media query or
+   not. Every one of these rules used to set `--apx-cols: 1` and had never once taken effect: on a
+   375px phone the services, conditions, team, story and about-team grids were all still rendering
+   3 and 4 columns, crushing each card to ~100px and spilling their contents past the right edge.
+   That is the whole reason this design "looked off" on a phone. Setting the resolved property
+   instead wins cleanly, because nothing sets THAT inline. (2026-09-17)
+   ⚠️ Do not "fix" this by adding !important to the variable. The count is per-client DATA (how
+   many services a practice offers) and belongs inline; how many columns fit on a phone is a
+   DESIGN rule and belongs here. Overriding the resolved property is what keeps that line intact. */
 @media (max-width: 767px) {
-  .apx-cardgrid { --apx-cols: 1; }
+  .apx-cardgrid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── band inner as a centred stack ──────────────────────────────────────────
@@ -1242,7 +1326,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 2px;
 }
 
-.apx-why__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; }
+.apx-why__intro { width: 100%; max-width: 560px; color: var(--apx-steel); line-height: 1.75; }
 
 /* ── COMPONENT FAMILY — feature list ────────────────────────────────────── */
 .apx-featurelist { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; margin-top: 32px; }
@@ -1307,7 +1391,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 56px;
 }
 .apx-team__headcopy { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-.apx-team__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; }
+.apx-team__intro { width: 100%; max-width: 560px; color: var(--apx-steel); line-height: 1.75; }
 
 /* A LARGE glow-primary, not an outline. Solid brand fill, white text, a coloured shadow that
    deepens on hover and a 2px lift. This was mis-transcribed once as an outline button from a
@@ -1390,7 +1474,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 767px) {
   .apx-team__head { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .apx-teamgrid { --apx-cols: 1; }
+  .apx-teamgrid { grid-template-columns: minmax(0, 1fr); }   /* see the note at .apx-cardgrid */
 }
 
 /* ============================================================================
@@ -1560,7 +1644,7 @@ h1, h2, h3, h4, h5, h6 {
 .apx-storycard__name { color: var(--apx-headings); font-family: var(--apx-font-head); font-size: 15px; font-weight: 600; }
 
 @media (max-width: 767px) {
-  .apx-storygrid { --apx-cols: 1; }
+  .apx-storygrid { grid-template-columns: minmax(0, 1fr); }   /* see the note at .apx-cardgrid */
 }
 
 /* stories.head shrink-wraps to its own content rather than the shared 590px measure — the
@@ -1573,7 +1657,8 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 64px;
 }
 [data-sd="stories.sub"] {
-  width: 560px;
+  width: 100%;
+  max-width: 560px;
   line-height: 1.75;
 }
 
@@ -1583,7 +1668,7 @@ h1, h2, h3, h4, h5, h6 {
 .apx-local { border-block: 1px solid var(--apx-cloud); }
 
 .apx-local__copycol { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-.apx-local__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; margin-bottom: 32px; }
+.apx-local__intro { width: 100%; max-width: 560px; color: var(--apx-steel); line-height: 1.75; margin-bottom: 32px; }
 
 /* No explicit width: the parent (align-items:flex-start) does not stretch its children, so this
    shrink-wraps to its own intrinsic grid-track sizing exactly as the reference's does — measured
@@ -1689,7 +1774,7 @@ h1, h2, h3, h4, h5, h6 {
 /* The sidebar tracks the scroll while the accordion column is taller than it, then stops at
    120px from the top — the header's own resting height plus a little air. */
 .apx-faq__sticky { position: sticky; top: 120px; display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
-.apx-faq__intro { width: 560px; max-width: 100%; color: var(--apx-steel); line-height: 1.75; margin-bottom: 32px; }
+.apx-faq__intro { width: 100%; max-width: 560px; color: var(--apx-steel); line-height: 1.75; margin-bottom: 32px; }
 
 /* ── native accordion, matching Breakdance's own bordered style ─────────────────────────────── */
 /* --apx-grey-200 is Breakdance's OWN grey ramp, not this design's 14-swatch palette — the native
@@ -2132,8 +2217,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 .apx-aboutcard__link:hover { background-color: var(--apx-brand); color: var(--apx-white); }
 
-@media (max-width: 1023px) { .apx-aboutteam { --apx-cols: 2; } }
-@media (max-width: 767px) { .apx-aboutteam { --apx-cols: 1; } }
+/* see the note at .apx-cardgrid — the variable is set inline and cannot be overridden here */
+@media (max-width: 1023px) { .apx-aboutteam { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px)  { .apx-aboutteam { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── BAND — story ─────────────────────────────────────────────────────────
    Two plain flex children sharing an 80px row gap, NOT BD's native Columns
@@ -3291,7 +3377,7 @@ h1, h2, h3, h4, h5, h6 {
    blind to STRUCTURE, and the DOM says those two heroes have no eyebrow node at
    all. Both differences are real and only one of them was visible in the CSS.
    /blog/'s hero is byte-identical to /about/'s and takes no variant. */
-.apx-pagehero__sub--m560 { width: 560px; max-width: 100%; }
+.apx-pagehero__sub--m560 { width: 100%; max-width: 560px; }
 
 /* ── contact: the 57/43 row ──────────────────────────────────────────────────
    Declared 57/43 with an 80px gap, so both columns overflow and flex-shrink
@@ -3713,7 +3799,13 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
 /* ── band 1 · the offer hero ─────────────────────────────────────────────────────────────────── */
 /* The two washes are pseudo-elements on the SECTION, not on an inner wrapper, and both are taller
    than the band (200% / 160%) so they read as light spilling in rather than as a vignette. */
-.apx-npshero { background-color: var(--apx-brand); }
+/* 🔴 `overflow: hidden` IS LOad-BEARING, not tidying. The two glows below are positioned
+   `right: -20%` and `left: -10%` of the band, so on EVERY screen size they extend past the
+   viewport and give the whole document a horizontal scroll — measured at 375px: the band's
+   scroll width was 450px against a 375px viewport, and at 768px it was 921px. Clipping them
+   costs nothing visually (they are radial gradients fading to transparent; the visible part is
+   inside the band either way) and it is what stops the offer page sliding sideways. */
+.apx-npshero { background-color: var(--apx-brand); overflow: hidden; }
 .apx-npshero::before {
   content: "";
   position: absolute;
@@ -3745,8 +3837,8 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
   justify-content: normal;
 }
 .apx-npshero__col {
-  width: 720px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 720px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3781,8 +3873,8 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
 }
 .apx-npshero__pricelabel { color: rgba(255, 255, 255, 0.7); font-weight: 500; margin-bottom: 24px; }
 .apx-npshero__sub {
-  width: 560px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 560px;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.7;
   margin-bottom: 32px;
@@ -3819,8 +3911,8 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
 .apx-npsincluded__inner { align-items: center; justify-content: normal; }
 /* This band's head is NOT the 590px `.apx-secthead` box — the reference declares no width on it,
    so it shrinks to content inside a centred column. Its sub carries its own 520px measure. */
-.apx-secthead--auto { width: auto; justify-content: normal; margin-bottom: 56px; }
-.apx-secthead__sub--m520 { width: 520px; max-width: 100%; }
+.apx-secthead--auto { width: auto; max-width: 100%; justify-content: normal; margin-bottom: 56px; }
+.apx-secthead__sub--m520 { width: 100%; max-width: 520px; }
 .apx-npsgrid {
   width: 100%;
   display: grid;
@@ -4016,8 +4108,8 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
 }
 .apx-legalhead__col,
 .apx-legalbody__col {
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4035,6 +4127,15 @@ textarea.apx-form__input { min-height: 100px; line-height: 1.4; resize: vertical
   text-align: center;
   margin-bottom: 14px;
 }
+/* ⚠️ `max-width: 100%` ON A FLEX CHILD IS NOT BELT-AND-BRACES HERE. These columns are
+   `display: flex; flex-direction: column; align-items: center`, and align-items other than
+   `stretch` means the children are NOT stretched — each one shrink-wraps to its own MAX-content
+   and is free to be wider than the column holding it. Measured at 320px: this h1
+   ("Non-Discrimination / Anti-Discrimination") laid out on one 356px line inside a 280px column
+   and took the page sideways with it. Same shape as the fixed-width measures above: an element
+   sized by its content rather than by its container. */
+.apx-legalhead__col > *,
+.apx-legalbody__col > * { max-width: 100%; }
 .apx-legalhead__h1 { text-align: center; }
 .apx-legalbody__inner { padding-top: 64px; padding-bottom: 96px; align-items: center; justify-content: center; }
 /* The prose block is CENTRED and its paragraphs are not: the reference left-aligns `p`, `ul` and
