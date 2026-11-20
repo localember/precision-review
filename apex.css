@@ -1471,6 +1471,15 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.3px;
   line-height: 1.4;
 }
+.apx-teamcard__link {
+  margin-top: 12px;
+  color: var(--apx-brand);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.apx-teamcard__link:hover { text-decoration: underline; }
+
 
 @media (max-width: 767px) {
   .apx-team__head { flex-direction: column; align-items: flex-start; gap: 16px; }
